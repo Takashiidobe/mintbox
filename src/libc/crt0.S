@@ -1,66 +1,71 @@
-				.text
+        .text
         .even
         .globl  _start
         .type   _start,@function
 
 _start:
-        subl    %a6, %a6                
+        subl    %a6, %a6                | clear a6 (helps some debuggers)
 
         | ---- Detect ACC vs PRG ----
+        | a0 != 0 and a0@(36) == 0  => ACC
+        | otherwise                  => PRG
         cmpl    #0, %a0
-        beqs    .Lstart_prg             | a0 == 0 => program
-        tstl    %a0@(36)                | parent basepage pointer
-        bnes    .Lstart_prg             | non-zero => treat as program
+        beqs    start_prg           | a0 == 0 => program
+        tstl    %a0@(36)              | parent basepage pointer
+        bnes    start_prg           | if non-zero, treat as program
 
         | ---- Accessory entry ----
-        movel   %a0, %a5                 | a5 := basepage
-        lea     %a0@(252), %sp           | temporary stack (command line area)
-        bra     .Lafter_stack
+        | ACC basepage is in a0
+        movel   %a0, %a5               | a5 := basepage
+        lea     %a0@(252), %sp         | temporary stack (command line area)
+        bra     after_stack
 
-.Lstart_prg:
+start_prg:
         | ---- Program entry ----
-        movel   %sp@(4), %a5             | a5 := basepage
-        movel   %a5@(4), %d0             | d0 := p_hitpa
-        bclr    #0, %d0                  | word-align (round down)
+        | For PRGs, basepage is at sp@(4)
+        movel   %sp@(4), %a5           | a5 := basepage
+        | Set stack from p_hitpa (basepage+4), clear bit 0, -64 bytes
+        movel   %a5@(4), %d0           | d0 := p_hitpa
+        bclr    #0, %d0                | word-align (round down)
         movel   %d0, %sp
-        subl    #64, %sp                 | small scratch per mintlib convention
+        subl    #64, %sp               | small scratch, per mintlib convention
 
-.Lafter_stack:
-        | ---- Clear BSS using [_edata, _end) ----
-        lea     _edata, %a0
+after_stack:
+        | ---- Zero BSS: [_edata, _end) ----
+				lea     _edata, %a0
         lea     _end,   %a1
-.Lbss_loop:
+bss_loop:
         cmpa.l  %a1, %a0
-        bhs     .Lbss_done
+        bhs     bss_done
         clrb    (%a0)+
-        bra     .Lbss_loop
-.Lbss_done:
+        bra     bss_loop
+bss_done:
 
         | ---- Publish environ from basepage->p_env (offset 0x2C) ----
-        movel   %a5@(44), %a1            | a1 := envp (p_env)
+        movel   %a5@(44), %a1          | a1 := envp (p_env)
         lea     environ, %a2
         movel   %a1, (%a2)
 
         | ---- Build minimal argv on stack: argv = { NULL } ----
         subq.l  #4, %sp
-        clrl    (%sp)                    | argv[0] = NULL
-        movel   %sp, %a0                 | a0 := argv
-        moveq   #0, %d0                  | d0 := argc = 0
+        clrl    (%sp)                  | argv[0] = NULL
+        movel   %sp, %a0               | a0 := argv
+        moveq   #0, %d0                | d0 := argc = 0
 
         | ---- Call _main(argc, argv, envp) ----
-        movel   %a1, -(%sp)              | envp
-        movel   %a0, -(%sp)              | argv
-        movel   %d0, -(%sp)              | argc
+        movel   %a1, -(%sp)            | envp
+        movel   %a0, -(%sp)            | argv
+        movel   %d0, -(%sp)            | argc
         jsr     _main
-        add.l   #12, %sp                 | pop args
+        add.l  #12, %sp                | pop args
 
         | ---- Exit via GEMDOS Pterm (0x4C), status on stack ----
-        movew   %d0, -(%sp)              | status (low 16 bits)
+        movew   %d0, -(%sp)            | status (low 16 bits)
         movew   #0x4c, -(%sp)
-        trap    #1                       | does not return
+        trap    #1                     | does not return
 
-.Lhang:
-        bra     .Lhang                   | safety if trap returns
+hang:
+        bra     hang                 | safety if trap returns
 
         .size   _start,.-_start
 
@@ -69,3 +74,6 @@ _start:
         .globl  environ
 environ:
         .long   0
+
+        .bss
+        .align  2
