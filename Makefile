@@ -15,7 +15,7 @@ LIBC ?= $(abspath build)
 LIBC_BUILD_DIR := $(LIBC)
 LIBC_OBJS_DIR := $(LIBC_BUILD_DIR)/objs
 LIBC_INCLUDE_DIR := $(LIBC_BUILD_DIR)/include
-LIBC_LIBRARY := $(LIBC_BUILD_DIR)/libcmini.a
+LIBC_LIBRARY := $(LIBC_BUILD_DIR)/libcbox.a
 LIBC_CRT0 := $(LIBC_OBJS_DIR)/crt0.o
 
 LIBC_EXCLUDE := 
@@ -62,7 +62,7 @@ $(LIBC_INCLUDE_DIR)/%.h: $(LIBC_INCLUDE_SRC_DIR)/%.h | $(LIBC_INCLUDE_DIR)
 
 $(OUT_BOX_DIR)/%: $(BOX_SRC_DIR)/%.c $(LIBC_LIBRARY) $(LIBC_CRT0) | $(OUT_BOX_DIR)
 	$(COMPILER) -nostdlib $(CPPFLAGS) $(INCLUDES) -I"$(LIBC)" "$(LIBC_CRT0)" $< \
-		-L"$(LIBC)" -lgcc -lcmini -lgcc $(CFLAGS) -o $@
+		-L"$(LIBC)" -lgcc -lcbox -lgcc $(CFLAGS) -o $@
 
 $(LIBC_BUILD_DIR) $(LIBC_OBJS_DIR) $(LIBC_INCLUDE_DIR) $(OUT_BOX_DIR):
 	mkdir -p $@
