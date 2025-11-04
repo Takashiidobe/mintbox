@@ -9,6 +9,8 @@ LIBC_SRC_DIR := src/libc
 LIBC_INCLUDE_SRC_DIR := $(LIBC_SRC_DIR)/include
 BOX_SRC_DIR := src/box
 
+rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
+
 LIBC ?= $(abspath build)
 LIBC_BUILD_DIR := $(LIBC)
 LIBC_OBJS_DIR := $(LIBC_BUILD_DIR)/objs
@@ -17,8 +19,8 @@ LIBC_LIBRARY := $(LIBC_BUILD_DIR)/libcmini.a
 LIBC_CRT0 := $(LIBC_OBJS_DIR)/crt0.o
 
 LIBC_EXCLUDE := 
-LIBC_C_SOURCES := $(filter-out $(addprefix $(LIBC_SRC_DIR)/,$(LIBC_EXCLUDE)),$(wildcard $(LIBC_SRC_DIR)/*.c))
-LIBC_ASM_SOURCES := $(filter-out $(LIBC_SRC_DIR)/crt0.S,$(wildcard $(LIBC_SRC_DIR)/*.S))
+LIBC_C_SOURCES := $(filter-out $(addprefix $(LIBC_SRC_DIR)/,$(LIBC_EXCLUDE)),$(call rwildcard,$(LIBC_SRC_DIR)/,*.c))
+LIBC_ASM_SOURCES := $(filter-out $(LIBC_SRC_DIR)/crt0.S,$(call rwildcard,$(LIBC_SRC_DIR)/,*.S))
 LIBC_OBJECTS := \
   $(patsubst $(LIBC_SRC_DIR)/%.c,$(LIBC_OBJS_DIR)/%.o,$(LIBC_C_SOURCES)) \
   $(patsubst $(LIBC_SRC_DIR)/%.S,$(LIBC_OBJS_DIR)/%.o,$(LIBC_ASM_SOURCES))
@@ -48,9 +50,11 @@ $(LIBC_CRT0): $(LIBC_SRC_DIR)/crt0.S | $(LIBC_OBJS_DIR)
 	$(COMPILER) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(LIBC_OBJS_DIR)/%.o: $(LIBC_SRC_DIR)/%.c | $(LIBC_OBJS_DIR)
+	mkdir -p $(dir $@)
 	$(COMPILER) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(LIBC_OBJS_DIR)/%.o: $(LIBC_SRC_DIR)/%.S | $(LIBC_OBJS_DIR)
+	mkdir -p $(dir $@)
 	$(COMPILER) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(LIBC_INCLUDE_DIR)/%.h: $(LIBC_INCLUDE_SRC_DIR)/%.h | $(LIBC_INCLUDE_DIR)
