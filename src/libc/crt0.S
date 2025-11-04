@@ -2,6 +2,9 @@
         .even
         .globl  _start
         .type   _start,@function
+        .globl  ___libc_init_args
+        .globl  ___libc_argc
+        .globl  ___libc_argv
 
 _start:
         subl    %a6, %a6                | clear a6 (helps some debuggers)
@@ -46,11 +49,12 @@ bss_done:
         lea     environ, %a2
         movel   %a1, (%a2)
 
-        | ---- Build minimal argv on stack: argv = { NULL } ----
-        subq.l  #4, %sp
-        clrl    (%sp)                  | argv[0] = NULL
-        movel   %sp, %a0               | a0 := argv
-        moveq   #0, %d0                | d0 := argc = 0
+        | ---- Parse command line into argc/argv ----
+        movel   %a5, -(%sp)
+        jsr     ___libc_init_args
+        addql   #4, %sp
+        movel   ___libc_argc, %d0
+        movel   ___libc_argv, %a0
 
         | ---- Call _main(argc, argv, envp) ----
         movel   %a1, -(%sp)            | envp
