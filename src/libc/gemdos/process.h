@@ -1,8 +1,8 @@
 #ifndef GEMDOS_PROCESS_H
 #define GEMDOS_PROCESS_H
 
-#include "../include/stdint.h"
 #include "./syscall.h"
+#include <stdint.h>
 
 // Forward declarations for structures supplied elsewhere.
 struct sigaction;

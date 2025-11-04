@@ -1,8 +1,8 @@
 #ifndef GEMDOS_NETWORK_H
 #define GEMDOS_NETWORK_H
 
-#include "../include/stdint.h"
 #include "./syscall.h"
+#include <stdint.h>
 
 /* Fflush - Flush the buffer of a file. */
 static inline int32_t Fflush(int16_t handle) {

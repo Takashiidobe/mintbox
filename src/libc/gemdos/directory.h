@@ -1,8 +1,8 @@
 #ifndef GEMDOS_DIRECTORY_H
 #define GEMDOS_DIRECTORY_H
 
-#include "../include/stdint.h"
 #include "./syscall.h"
+#include <stdint.h>
 
 /* Forward declarations for GEMDOS structures provided elsewhere. */
 typedef struct DISKINFO DISKINFO;

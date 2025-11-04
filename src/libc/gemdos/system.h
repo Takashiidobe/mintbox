@@ -1,8 +1,8 @@
 #ifndef GEMDOS_SYSTEM_H
 #define GEMDOS_SYSTEM_H
 
-#include "../include/stdint.h"
 #include "./syscall.h"
+#include <stdint.h>
 
 // Forward declarations for structures supplied elsewhere.
 typedef struct COOKIE COOKIE;

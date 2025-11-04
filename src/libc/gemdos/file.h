@@ -1,8 +1,8 @@
 #ifndef GEMDOS_FILE_H
 #define GEMDOS_FILE_H
 
-#include "../include/stdint.h"
 #include "./syscall.h"
+#include <stdint.h>
 
 /* Forward declarations for GEMDOS structures provided elsewhere. */
 typedef struct DOSTIME DOSTIME;

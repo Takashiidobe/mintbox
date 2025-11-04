@@ -124,10 +124,10 @@ static inline long trap_1_wwl(short n, short a, long b) {
 }
 
 static inline long trap_1_wwlw(short n, short a, long b, short c) {
-    register long retval __asm__("d0");
-    short _a = (short)(a);
-    long _b = (long)(b);
-    short _c = (short)(c);
+  register long retval __asm__("d0");
+  short _a = (short)(a);
+  long _b = (long)(b);
+  short _c = (short)(c);
 
   __asm__ volatile("movw\t%4,%%sp@-\n\t"
                    "movl\t%3,%%sp@-\n\t"
@@ -140,34 +140,34 @@ static inline long trap_1_wwlw(short n, short a, long b, short c) {
                    : "d1", "d2", "a0", "a1", "a2", "cc" /* clobbered */
                      ,
                      "memory");
-    return retval;
+  return retval;
 }
 
 static inline long trap_1_wwwl(short n, short a, short b, long c) {
-    register long retval __asm__("d0");
-    short _a = (short)(a);
-    short _b = (short)(b);
-    long _c = (long)(c);
+  register long retval __asm__("d0");
+  short _a = (short)(a);
+  short _b = (short)(b);
+  long _c = (long)(c);
 
-    __asm__ volatile("movl\t%4,%%sp@-\n\t"
-                     "movw\t%3,%%sp@-\n\t"
-                     "movw\t%2,%%sp@-\n\t"
-                     "movw\t%1,%%sp@-\n\t"
-                     "trap\t#1\n\t"
-                     "lea\t%%sp@(10),%%sp"
-                     : "=r"(retval)                       /* outputs */
-                     : "g"(n), "r"(_a), "r"(_b), "r"(_c)  /* inputs  */
-                     : "d1", "d2", "a0", "a1", "a2", "cc" /* clobbered */
-                       ,
-                       "memory");
-    return retval;
+  __asm__ volatile("movl\t%4,%%sp@-\n\t"
+                   "movw\t%3,%%sp@-\n\t"
+                   "movw\t%2,%%sp@-\n\t"
+                   "movw\t%1,%%sp@-\n\t"
+                   "trap\t#1\n\t"
+                   "lea\t%%sp@(10),%%sp"
+                   : "=r"(retval)                       /* outputs */
+                   : "g"(n), "r"(_a), "r"(_b), "r"(_c)  /* inputs  */
+                   : "d1", "d2", "a0", "a1", "a2", "cc" /* clobbered */
+                     ,
+                     "memory");
+  return retval;
 }
 
 static inline long trap_1_wwww(short n, short a, short b, short c) {
-    register long retval __asm__("d0");
-    short _a = (short)(a);
-    short _b = (short)(b);
-    short _c = (short)(c);
+  register long retval __asm__("d0");
+  short _a = (short)(a);
+  short _b = (short)(b);
+  short _c = (short)(c);
 
   __asm__ volatile("movw\t%4,%%sp@-\n\t"
                    "movw\t%3,%%sp@-\n\t"
@@ -320,10 +320,10 @@ static inline long trap_1_wllll(short n, long a, long b, long c, long d) {
 }
 
 static inline long trap_1_wwlll(short n, short a, long b, long c, long d) {
-    register long retval __asm__("d0");
-    short _a = (short)(a);
-    long _b = (long)(b);
-    long _c = (long)(c);
+  register long retval __asm__("d0");
+  short _a = (short)(a);
+  long _b = (long)(b);
+  long _c = (long)(c);
   long _d = (long)(d);
 
   __asm__ volatile("movl	%5,%%sp@-\n\t"
@@ -336,30 +336,30 @@ static inline long trap_1_wwlll(short n, short a, long b, long c, long d) {
                    : "=r"(retval)                               /* outputs */
                    : "g"(n), "r"(_a), "r"(_b), "r"(_c), "r"(_d) /* inputs */
                    : "d1", "d2", "a0", "a1", "a2", "cc", "memory");
-    return retval;
+  return retval;
 }
 
 static inline long trap_1_wwllll(short n, short a, long b, long c, long d,
                                  long e) {
-    register long retval __asm__("d0");
-    short _a = (short)(a);
-    long _b = (long)(b);
-    long _c = (long)(c);
-    long _d = (long)(d);
-    long _e = (long)(e);
+  register long retval __asm__("d0");
+  short _a = (short)(a);
+  long _b = (long)(b);
+  long _c = (long)(c);
+  long _d = (long)(d);
+  long _e = (long)(e);
 
-    __asm__ volatile("movl\t%6,%%sp@-\n\t"
-                     "movl\t%5,%%sp@-\n\t"
-                     "movl\t%4,%%sp@-\n\t"
-                     "movl\t%3,%%sp@-\n\t"
-                     "movw\t%2,%%sp@-\n\t"
-                     "movw\t%1,%%sp@-\n\t"
-                     "trap\t#1\n\t"
-                     "lea\t%%sp@(20),%%sp"
-                     : "=r"(retval) /* outputs */
-                     : "g"(n), "r"(_a), "r"(_b), "r"(_c), "r"(_d), "r"(_e)
-                     : "d1", "d2", "a0", "a1", "a2", "cc", "memory");
-    return retval;
+  __asm__ volatile("movl\t%6,%%sp@-\n\t"
+                   "movl\t%5,%%sp@-\n\t"
+                   "movl\t%4,%%sp@-\n\t"
+                   "movl\t%3,%%sp@-\n\t"
+                   "movw\t%2,%%sp@-\n\t"
+                   "movw\t%1,%%sp@-\n\t"
+                   "trap\t#1\n\t"
+                   "lea\t%%sp@(20),%%sp"
+                   : "=r"(retval) /* outputs */
+                   : "g"(n), "r"(_a), "r"(_b), "r"(_c), "r"(_d), "r"(_e)
+                   : "d1", "d2", "a0", "a1", "a2", "cc", "memory");
+  return retval;
 }
 
 static inline long trap_1_wwlllll(short n, short a, long b, long c, long d,
@@ -390,7 +390,7 @@ static inline long trap_1_wwlllll(short n, short a, long b, long c, long d,
 
 static inline long trap_1_wllwwl(short n, long a, long b, short c, short d,
                                  long e) {
-    register long retval __asm__("d0");
+  register long retval __asm__("d0");
   long _a = (long)(a);
   long _b = (long)(b);
   short _c = (short)(c);

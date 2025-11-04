@@ -1,8 +1,8 @@
 #ifndef GEMDOS_MEMORY_H
 #define GEMDOS_MEMORY_H
 
-#include "../include/stdint.h"
 #include "./syscall.h"
+#include <stdint.h>
 
 /* Maccess - verify accessibility of a region of memory. */
 static inline int32_t Maccess(void *start, int32_t size, int16_t mode) {

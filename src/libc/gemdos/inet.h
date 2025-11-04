@@ -1,8 +1,8 @@
 #ifndef GEMDOS_INET_H
 #define GEMDOS_INET_H
 
-#include "../include/stdint.h"
 #include "./syscall.h"
+#include <stdint.h>
 
 /* Forward declarations for networking structures supplied elsewhere. */
 struct iovec;
