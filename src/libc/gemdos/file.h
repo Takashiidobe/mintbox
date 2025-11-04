@@ -69,12 +69,12 @@ static inline int32_t Fclose(int16_t handle) {
 }
 
 /* Fread - Read bytes from a file handle. */
-static inline int32_t Fread(int16_t handle, int32_t count, void *buf) {
+static inline int32_t Fread(int16_t handle, int32_t count, const void *buf) {
   return (int32_t)trap_1_wwll(0x3F, handle, (long)count, (long)buf);
 }
 
 /* Fwrite - Write bytes to a file handle. */
-static inline int32_t Fwrite(int16_t handle, int32_t count, void *buf) {
+static inline int32_t Fwrite(int16_t handle, int32_t count, const void *buf) {
   return (int32_t)trap_1_wwll(0x40, handle, (long)count, (long)buf);
 }
 
@@ -119,9 +119,7 @@ static inline int32_t Fgetchar(int16_t fh, int16_t mode) {
 }
 
 /* Fgetdta - Retrieve pointer to the default DTA. */
-static inline DTA *Fgetdta(void) {
-  return (DTA *)trap_1_w(0x2F);
-}
+static inline DTA *Fgetdta(void) { return (DTA *)trap_1_w(0x2F); }
 
 /* Finstat - Test input status of a handle. */
 static inline int32_t Finstat(int16_t fh) {
@@ -175,8 +173,7 @@ static inline int32_t Frename(const int8_t *oldname, const int8_t *newname) {
 }
 
 /* Fseek - Seek within a file. */
-static inline int32_t Fseek(int32_t offset, int16_t handle,
-                            int16_t seekmode) {
+static inline int32_t Fseek(int32_t offset, int16_t handle, int16_t seekmode) {
   return (int32_t)trap_1_wlww(0x42, (long)offset, handle, seekmode);
 }
 
@@ -196,9 +193,7 @@ static inline int32_t Fselect(uint16_t timeout, int32_t *rfds, int32_t *wfds,
 }
 
 /* Fsetdta - Set the default DTA pointer. */
-static inline void Fsetdta(DTA *buf) {
-  (void)trap_1_wl(0x1A, (long)buf);
-}
+static inline void Fsetdta(DTA *buf) { (void)trap_1_wl(0x1A, (long)buf); }
 
 /* Fsfirst - Initiate a file search. */
 static inline int32_t Fsfirst(const int8_t *filename, int16_t attr) {
@@ -206,9 +201,7 @@ static inline int32_t Fsfirst(const int8_t *filename, int16_t attr) {
 }
 
 /* Fsnext - Continue a file search. */
-static inline int16_t Fsnext(void) {
-  return (int16_t)trap_1_w(0x4F);
-}
+static inline int16_t Fsnext(void) { return (int16_t)trap_1_w(0x4F); }
 
 /* Fsymlink - Create a symbolic link. */
 static inline int32_t Fsymlink(int8_t *oldname, int8_t *newname) {

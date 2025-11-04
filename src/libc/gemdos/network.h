@@ -30,8 +30,6 @@ static inline int32_t Funlock(int16_t handle) {
 }
 
 /* Nversion - Network identifier determine. */
-static inline int32_t Nversion(void) {
-  return (int32_t)trap_1_w(0x60);
-}
+static inline int32_t Nversion(void) { return (int32_t)trap_1_w(0x60); }
 
 #endif /* GEMDOS_NETWORK_H */
