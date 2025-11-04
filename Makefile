@@ -25,7 +25,7 @@ LIBC_OBJECTS := \
   $(patsubst $(LIBC_SRC_DIR)/%.c,$(LIBC_OBJS_DIR)/%.o,$(LIBC_C_SOURCES)) \
   $(patsubst $(LIBC_SRC_DIR)/%.S,$(LIBC_OBJS_DIR)/%.o,$(LIBC_ASM_SOURCES))
 
-LIBC_HEADERS := $(wildcard $(LIBC_INCLUDE_SRC_DIR)/*.h)
+LIBC_HEADERS := $(call rwildcard,$(LIBC_INCLUDE_SRC_DIR)/,*.h)
 LIBC_INSTALLED_HEADERS := $(patsubst $(LIBC_INCLUDE_SRC_DIR)/%,$(LIBC_INCLUDE_DIR)/%,$(LIBC_HEADERS))
 
 BOX_SOURCES := $(wildcard $(BOX_SRC_DIR)/*.c)
@@ -58,6 +58,7 @@ $(LIBC_OBJS_DIR)/%.o: $(LIBC_SRC_DIR)/%.S | $(LIBC_OBJS_DIR)
 	$(COMPILER) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(LIBC_INCLUDE_DIR)/%.h: $(LIBC_INCLUDE_SRC_DIR)/%.h | $(LIBC_INCLUDE_DIR)
+	mkdir -p $(dir $@)
 	cp $< $@
 
 $(OUT_BOX_DIR)/%: $(BOX_SRC_DIR)/%.c $(LIBC_LIBRARY) $(LIBC_CRT0) | $(OUT_BOX_DIR)
