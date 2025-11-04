@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 int atoi(const char *s) {
   int n = 0, neg = 0;
   while (*s == ' ')

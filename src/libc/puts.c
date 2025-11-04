@@ -1,8 +1,12 @@
+#include <stdio.h>
+
 int puts(const char *s) {
-  if (*s)
-    putch(*s);
-  while (*s++ != '\0') {
-    putch(*s);
+  const char *p = s;
+
+  while (*p) {
+    putchar(*p++);
   }
-  putch('\n');
+  putchar('\n');
+
+  return 0;
 }

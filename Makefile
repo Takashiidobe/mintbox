@@ -1,32 +1,67 @@
-SOURCES := $(wildcard src/*.c)
-PROGRAMS := $(basename $(notdir $(SOURCES)))
-
 COMPILER ?= m68k-atari-mint-gcc
+AR ?= m68k-atari-mint-ar
+RANLIB ?= m68k-atari-mint-ranlib
+
+CFLAGS ?= -Os
+CPPFLAGS ?=
+
+LIBC_SRC_DIR := src/libc
+LIBC_INCLUDE_SRC_DIR := $(LIBC_SRC_DIR)/include
+BOX_SRC_DIR := src/box
+
 LIBCMINI ?= $(abspath build)
+LIBC_BUILD_DIR := $(LIBCMINI)
+LIBC_OBJS_DIR := $(LIBC_BUILD_DIR)/objs
+LIBC_INCLUDE_DIR := $(LIBC_BUILD_DIR)/include
+LIBC_LIBRARY := $(LIBC_BUILD_DIR)/libcmini.a
+LIBC_CRT0 := $(LIBC_OBJS_DIR)/crt0.o
 
-OUT_MINTLIB := out/mintlib
-OUT_LIBCMINI := out/libcmini
+LIBC_EXCLUDE := 
+LIBC_C_SOURCES := $(filter-out $(addprefix $(LIBC_SRC_DIR)/,$(LIBC_EXCLUDE)),$(wildcard $(LIBC_SRC_DIR)/*.c))
+LIBC_ASM_SOURCES := $(filter-out $(LIBC_SRC_DIR)/crt0.S,$(wildcard $(LIBC_SRC_DIR)/*.S))
+LIBC_OBJECTS := \
+  $(patsubst $(LIBC_SRC_DIR)/%.c,$(LIBC_OBJS_DIR)/%.o,$(LIBC_C_SOURCES)) \
+  $(patsubst $(LIBC_SRC_DIR)/%.S,$(LIBC_OBJS_DIR)/%.o,$(LIBC_ASM_SOURCES))
 
-MINTLIB_BINS := $(addprefix $(OUT_MINTLIB)/,$(PROGRAMS))
-LIBCMINI_BINS := $(addprefix $(OUT_LIBCMINI)/,$(PROGRAMS))
+LIBC_HEADERS := $(wildcard $(LIBC_INCLUDE_SRC_DIR)/*.h)
+LIBC_INSTALLED_HEADERS := $(patsubst $(LIBC_INCLUDE_SRC_DIR)/%,$(LIBC_INCLUDE_DIR)/%,$(LIBC_HEADERS))
 
-.PHONY: all mintlib libcmini clean
+BOX_SOURCES := $(wildcard $(BOX_SRC_DIR)/*.c)
+OUT_BOX_DIR := out/box
+BOX_PROGRAMS := $(patsubst $(BOX_SRC_DIR)/%.c,$(OUT_BOX_DIR)/%,$(BOX_SOURCES))
 
-all: mintlib libcmini
+INCLUDES := -I"$(LIBC_INCLUDE_DIR)"
 
-mintlib: $(MINTLIB_BINS)
+.PHONY: all libc box clean
 
-libcmini: $(LIBCMINI_BINS)
+all: libc box
 
-$(OUT_MINTLIB)/%: src/%.c | $(OUT_MINTLIB)
-	$(COMPILER) $< -o $@
+libc: $(LIBC_INSTALLED_HEADERS) $(LIBC_LIBRARY) $(LIBC_CRT0)
 
-$(OUT_LIBCMINI)/%: src/%.c | $(OUT_LIBCMINI)
-	$(COMPILER) -nostdlib -I"$(LIBCMINI)" "$(LIBCMINI)/objs/crt0.o" $< \
-		-L"$(LIBCMINI)" -lgcc -lcmini -lgcc -Os -o $@
+box: $(BOX_PROGRAMS)
 
-$(OUT_MINTLIB) $(OUT_LIBCMINI):
+$(LIBC_LIBRARY): $(LIBC_OBJECTS) | $(LIBC_BUILD_DIR)
+	$(AR) rcs $@ $^
+	$(RANLIB) $@
+
+$(LIBC_CRT0): $(LIBC_SRC_DIR)/crt0.S | $(LIBC_OBJS_DIR)
+	$(COMPILER) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+$(LIBC_OBJS_DIR)/%.o: $(LIBC_SRC_DIR)/%.c | $(LIBC_OBJS_DIR)
+	$(COMPILER) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+$(LIBC_OBJS_DIR)/%.o: $(LIBC_SRC_DIR)/%.S | $(LIBC_OBJS_DIR)
+	$(COMPILER) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+$(LIBC_INCLUDE_DIR)/%.h: $(LIBC_INCLUDE_SRC_DIR)/%.h | $(LIBC_INCLUDE_DIR)
+	cp $< $@
+
+$(OUT_BOX_DIR)/%: $(BOX_SRC_DIR)/%.c $(LIBC_LIBRARY) $(LIBC_CRT0) | $(OUT_BOX_DIR)
+	$(COMPILER) -nostdlib $(CPPFLAGS) $(INCLUDES) -I"$(LIBCMINI)" "$(LIBC_CRT0)" $< \
+		-L"$(LIBCMINI)" -lgcc -lcmini -lgcc $(CFLAGS) -o $@
+
+$(LIBC_BUILD_DIR) $(LIBC_OBJS_DIR) $(LIBC_INCLUDE_DIR) $(OUT_BOX_DIR):
 	mkdir -p $@
 
 clean:
-	$(RM) -r $(OUT_MINTLIB) $(dir $(OUT_LIBCMINI))
+	rm -rf $(OUT_BOX_DIR) $(LIBC_BUILD_DIR)
