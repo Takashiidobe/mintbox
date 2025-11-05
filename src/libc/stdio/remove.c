@@ -1,4 +1,4 @@
-#include "./gemdos/file.h"
+#include "../gemdos/file.h"
 #include <stdio.h>
 
 int remove(const char *path) {

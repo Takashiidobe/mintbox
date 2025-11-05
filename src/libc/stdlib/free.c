@@ -1,4 +1,4 @@
-#include "./gemdos/memory.h"
+#include "../gemdos/memory.h"
 #include <stdlib.h>
 
 void free(void *ptr) {

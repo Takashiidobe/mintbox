@@ -1,4 +1,4 @@
-#include "./gemdos/memory.h"
+#include "../gemdos/memory.h"
 #include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>

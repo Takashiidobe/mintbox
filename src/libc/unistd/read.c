@@ -1,4 +1,4 @@
-#include "./gemdos/file.h"
+#include "../gemdos/file.h"
 #include <errno.h>
 #include <stdint.h>
 #include <unistd.h>

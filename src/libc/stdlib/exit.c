@@ -1,4 +1,4 @@
-#include "./gemdos/process.h"
+#include "../gemdos/process.h"
 #include <stdint.h>
 #include <stdlib.h>
 

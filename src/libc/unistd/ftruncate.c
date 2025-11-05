@@ -1,4 +1,4 @@
-#include "./gemdos/file.h"
+#include "../gemdos/file.h"
 #include <unistd.h>
 
 #define FTRUNCATE (('F' << 8) | 4)
