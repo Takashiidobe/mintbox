@@ -32,7 +32,7 @@ BOX_SOURCES := $(wildcard $(BOX_SRC_DIR)/*.c)
 OUT_BOX_DIR := out/box
 BOX_PROGRAMS := $(patsubst $(BOX_SRC_DIR)/%.c,$(OUT_BOX_DIR)/%,$(BOX_SOURCES))
 
-INCLUDES := -I"$(LIBC_INCLUDE_DIR)"
+INCLUDES := -I"$(LIBC_INCLUDE_DIR)" -I"$(LIBC_INCLUDE_SRC_DIR)"
 
 .PHONY: all libc box clean
 
