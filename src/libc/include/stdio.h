@@ -1,11 +1,9 @@
 #ifndef LIBC_STDIO_H
 #define LIBC_STDIO_H
 
-#include <stddef.h>
 #include <stdarg.h>
+#include <stddef.h>
 #include <sys/types.h>
-
-
 
 #define EOF (-1)
 
@@ -19,6 +17,9 @@ int putchar(int c);
 int putch(int c);
 int puts(const char *s);
 int remove(const char *path);
+int fgetc(FILE *stream);
+int ungetc(int c, FILE *stream);
+int fflush(FILE *stream);
 
 FILE *fopen(const char *path, const char *mode);
 int fclose(FILE *stream);
@@ -35,5 +36,6 @@ int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 int sscanf(const char *str, const char *format, ...);
 ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 int fcloseall(void);
+int ferror(FILE *f);
 
 #endif /* LIBC_STDIO_H */

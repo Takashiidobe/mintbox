@@ -9,6 +9,8 @@
 struct __file {
   int handle;
   unsigned char flags;
+  unsigned char has_ungetc;
+  unsigned char ungetc_value;
 };
 
 FILE *__stdio_alloc_file(void);
