@@ -1,19 +1,7 @@
 #ifndef LIBC_SYS_TIME_H
 #define LIBC_SYS_TIME_H
 
-#include <stdint.h>
-
-#ifndef __LIBC_TIME_T_DEFINED
-#define __LIBC_TIME_T_DEFINED
-typedef int32_t time_t;
-typedef time_t __time_t;
-#endif
-
-#ifndef __LIBC_SUSECONDS_T_DEFINED
-#define __LIBC_SUSECONDS_T_DEFINED
-typedef int32_t suseconds_t;
-typedef suseconds_t __suseconds_t;
-#endif
+#include <sys/types.h>
 
 struct timeval {
   __time_t tv_sec;       /* Seconds. */

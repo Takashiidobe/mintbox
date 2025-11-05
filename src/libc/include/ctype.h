@@ -3,5 +3,6 @@
 
 int isdigit(int c);
 int isspace(int c);
+int isprint(int c);
 
 #endif /* LIBC_CTYPE_H */
