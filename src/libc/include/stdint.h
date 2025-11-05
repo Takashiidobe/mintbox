@@ -18,6 +18,7 @@ typedef unsigned long uintptr_t;
 
 #define SIZE_MAX ((size_t)-1)
 #define INT32_MAX 2147483647
+#define INT32_MIN -2147483648
 #define UINT32_MAX 4294967295U
 
 #endif /* STDINT_H */

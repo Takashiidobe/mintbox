@@ -20,15 +20,15 @@ extern int errno;
 #define ENMFIL -49  // No more files can be opened
 #define ELOCKED -58 // Segment of a file is protected network
 #define ENSLOCK -59 // Invalid lock removal request
-#define ERANGE -64  // File pointer in invalid segment
-#define EINTRN -65  // Internal error of GEMDOS
-#define EPLFMT -66  // Invalid program load format
-#define EGSBF -67   // Allocated memory block could not be enlarged
-#define EBREAK -68  // Program termination by Control-C
-#define EXCPT -69   // 68000 exception bombs
-#define EPTHOV -70  // Path overflow
-#define ELOOP -80   // Endless loop with symbolic links
-#define EPIPE -81   // Write to broken pipe.
+// #define ERANGE -64  // File pointer in invalid segment
+#define EINTRN -65 // Internal error of GEMDOS
+#define EPLFMT -66 // Invalid program load format
+#define EGSBF -67  // Allocated memory block could not be enlarged
+#define EBREAK -68 // Program termination by Control-C
+#define EXCPT -69  // 68000 exception bombs
+#define EPTHOV -70 // Path overflow
+#define ELOOP -80  // Endless loop with symbolic links
+#define EPIPE -81  // Write to broken pipe.
 
 // Freemint error messages
 

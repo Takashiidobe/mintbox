@@ -32,7 +32,7 @@ typedef long ssize_t;
 
 #ifndef __LIBC_TIME_T_DEFINED
 #define __LIBC_TIME_T_DEFINED
-typedef int32_t time_t;
+typedef long time_t;
 typedef time_t __time_t;
 #endif
 

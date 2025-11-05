@@ -13,5 +13,7 @@ void free(void *ptr);
 void *realloc(void *ptr, size_t size);
 void *calloc(size_t count, size_t size);
 void exit(int status);
+char *utoa(char *dst, long value);
+char *itoa(char *dst, long value);
 
 #endif /* LIBC_STDLIB_H */

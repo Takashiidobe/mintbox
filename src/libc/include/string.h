@@ -11,5 +11,6 @@ char *strchr(const char *s, int c);
 int memcmp(const void *s1, const void *s2, size_t n);
 char *strstr(const char *haystack, const char *needle);
 char *strerror(int errnum);
+int strcmp(const char *s1, const char *s2);
 
 #endif /* LIBC_STRING_H */

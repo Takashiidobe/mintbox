@@ -2,6 +2,8 @@ COMPILER ?= m68k-atari-mint-gcc
 AR ?= m68k-atari-mint-ar
 RANLIB ?= m68k-atari-mint-ranlib
 
+MAKEFLAGS+="-j $(shell nproc)"
+
 CFLAGS ?= -Os
 CPPFLAGS ?=
 
@@ -32,15 +34,22 @@ BOX_SOURCES := $(wildcard $(BOX_SRC_DIR)/*.c)
 OUT_BOX_DIR := out/box
 BOX_PROGRAMS := $(patsubst $(BOX_SRC_DIR)/%.c,$(OUT_BOX_DIR)/%,$(BOX_SOURCES))
 
+TESTS_SRC_DIR := src/tests
+TESTS_SOURCES := $(wildcard $(TESTS_SRC_DIR)/*.c)
+OUT_TESTS_DIR := out/tests
+TEST_PROGRAMS := $(patsubst $(TESTS_SRC_DIR)/%.c,$(OUT_TESTS_DIR)/%,$(TESTS_SOURCES))
+
 INCLUDES := -I"$(LIBC_INCLUDE_DIR)" -I"$(LIBC_INCLUDE_SRC_DIR)"
 
-.PHONY: all libc box clean
+.PHONY: all libc box tests clean
 
-all: libc box
+all: libc box tests
 
 libc: $(LIBC_INSTALLED_HEADERS) $(LIBC_LIBRARY) $(LIBC_CRT0)
 
 box: $(BOX_PROGRAMS)
+
+tests: $(TEST_PROGRAMS)
 
 $(LIBC_LIBRARY): $(LIBC_OBJECTS) | $(LIBC_BUILD_DIR)
 	$(AR) rcs $@ $^
@@ -65,8 +74,12 @@ $(OUT_BOX_DIR)/%: $(BOX_SRC_DIR)/%.c $(LIBC_LIBRARY) $(LIBC_CRT0) | $(OUT_BOX_DI
 	$(COMPILER) -nostdlib $(CPPFLAGS) $(INCLUDES) -I"$(LIBC)" "$(LIBC_CRT0)" $< \
 		-L"$(LIBC)" -lgcc -lcbox -lgcc $(CFLAGS) -o $@
 
-$(LIBC_BUILD_DIR) $(LIBC_OBJS_DIR) $(LIBC_INCLUDE_DIR) $(OUT_BOX_DIR):
+$(OUT_TESTS_DIR)/%: $(TESTS_SRC_DIR)/%.c $(LIBC_LIBRARY) $(LIBC_CRT0) | $(OUT_TESTS_DIR)
+	$(COMPILER) -nostdlib $(CPPFLAGS) $(INCLUDES) -I"$(LIBC)" "$(LIBC_CRT0)" $< \
+		-L"$(LIBC)" -lgcc -lcbox -lgcc $(CFLAGS) -o $@
+
+$(LIBC_BUILD_DIR) $(LIBC_OBJS_DIR) $(LIBC_INCLUDE_DIR) $(OUT_BOX_DIR) $(OUT_TESTS_DIR):
 	mkdir -p $@
 
 clean:
-	rm -rf $(OUT_BOX_DIR) $(LIBC_BUILD_DIR)
+	rm -rf $(OUT_BOX_DIR) $(OUT_TESTS_DIR) $(LIBC_BUILD_DIR)
