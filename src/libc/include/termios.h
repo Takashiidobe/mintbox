@@ -168,4 +168,21 @@ int tcgetattr(int fd, struct termios *termios_p);
 int tcsetattr(int fd, int optional_actions, const struct termios *termios_p);
 int tcflush(int fd, int queue_selector);
 
+#define _TF_STOPBITS 0x0003
+#define _TF_1STOP 0x0001
+#define _TF_15STOP 0x0002
+#define _TF_2STOP 0x0003
+#define _TF_CHARBITS 0x000C
+#define _TF_8BIT 0x0000
+#define _TF_7BIT 0x0004
+#define _TF_6BIT 0x0008
+#define _TF_5BIT 0x000C
+#define _TF_CAR 0x0800
+#define _TF_BRKINT 0x0080
+
+#define _TS_BLIND 0x0800
+#define _TS_HOLD 0x1000
+#define _TS_HPCL 0x4000
+#define _TS_COOKED 0x8000
+
 #endif /* LIBC_TERMIOS_H */

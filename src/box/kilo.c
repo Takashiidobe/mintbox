@@ -221,7 +221,12 @@ int enableRawMode(int fd) {
     if (E.rawmode) return 0; /* Already enabled. */
     if (!isatty(STDIN_FILENO)) goto fatal;
     atexit(editorAtExit);
-    if (tcgetattr(fd,&orig_termios) == -1) goto fatal;
+    if (tcgetattr(fd,&orig_termios) == -1) {
+        char buf[64];
+        snprintf(buf, sizeof(buf), "tcgetattr failed: errno=%d\n", errno);
+        fputs(buf, stderr);
+        goto fatal;
+    }
 
     raw = orig_termios;  /* modify the original mode */
     /* input modes: no break, no CR to NL, no parity check, no strip char,
@@ -239,7 +244,12 @@ int enableRawMode(int fd) {
     raw.c_cc[VTIME] = 1; /* 100 ms timeout (unit is tens of second). */
 
     /* put terminal in raw mode after flushing */
-    if (tcsetattr(fd,TCSAFLUSH,&raw) < 0) goto fatal;
+    if (tcsetattr(fd,TCSAFLUSH,&raw) < 0) {
+        char buf[64];
+        snprintf(buf, sizeof(buf), "tcsetattr failed: errno=%d\n", errno);
+        fputs(buf, stderr);
+        goto fatal;
+    }
     E.rawmode = 1;
     return 0;
 
@@ -533,6 +543,7 @@ int editorSyntaxToColor(int hl) {
 /* Select the syntax highlight scheme depending on the filename,
  * setting it in the global state E.syntax. */
 void editorSelectSyntaxHighlight(char *filename) {
+    puts("editorSelectSyntaxHighlight start");
     for (unsigned int j = 0; j < HLDB_ENTRIES; j++) {
         struct editorSyntax *s = HLDB+j;
         unsigned int i = 0;
@@ -541,6 +552,7 @@ void editorSelectSyntaxHighlight(char *filename) {
             int patlen = strlen(s->filematch[i]);
             if ((p = strstr(filename,s->filematch[i])) != NULL) {
                 if (s->filematch[i][0] != '.' || p[patlen] == '\0') {
+                    puts("syntax match");
                     E.syntax = s;
                     return;
                 }
@@ -548,6 +560,7 @@ void editorSelectSyntaxHighlight(char *filename) {
             i++;
         }
     }
+    puts("syntax none");
 }
 
 /* ======================= Editor rows implementation ======================= */
@@ -1289,15 +1302,20 @@ void initEditor(void) {
 }
 
 int main(int argc, char **argv) {
+    puts("kilo start");
     if (argc != 2) {
         fprintf(stderr,"Usage: kilo <filename>\n");
         exit(1);
     }
 
     initEditor();
+    puts("after init");
     editorSelectSyntaxHighlight(argv[1]);
+    puts("after syntax");
     editorOpen(argv[1]);
+    puts("after open");
     enableRawMode(STDIN_FILENO);
+    puts("after enableRawMode");
     editorSetStatusMessage(
         "HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
     while(1) {

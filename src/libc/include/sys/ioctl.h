@@ -10,6 +10,63 @@ struct winsize {
   unsigned short ws_ypixel;
 };
 
+struct tchars {
+  char t_intrc;
+  char t_quitc;
+  char t_startc;
+  char t_stopc;
+  char t_eofc;
+  char t_brkc;
+};
+
+struct ltchars {
+  char t_suspc;
+  char t_dsuspc;
+  char t_rprntc;
+  char t_flushc;
+  char t_werasc;
+  char t_lnextc;
+};
+
+struct sgttyb {
+  char sg_ispeed;
+  char sg_ospeed;
+  char sg_erase;
+  char sg_kill;
+  short sg_flags;
+};
+
+#define CRMOD 0x0001
+#define CBREAK 0x0002
+#ifndef ECHO
+#define ECHO 0x0004
+#endif
+#define XTABS 0x0008
+#define RAW 0x0010
+#define LCASE 0x0020
+#ifndef NOFLSH
+#define NOFLSH 0x0040
+#endif
+#ifndef TOSTOP
+#define TOSTOP 0x0100
+#endif
+#define XKEY 0x0200
+#ifndef ECHOCTL
+#define ECHOCTL 0x0400
+#endif
+#define TANDEM 0x1000
+#define RTSCTS 0x2000
+#define EVENP 0x4000
+#define ODDP 0x8000
+#define ANYP 0x0000
+
+#define LCRTBS 0x0001
+#define LCRTERA 0x0002
+#define LCRTKIL 0x0004
+#define LPRTERA 0x0010
+#define LFLUSHO 0x0020
+#define LLITOUT 0x0100
+
 #define _IOGROUP_T 'T'
 #define _IOGROUP_F 'F'
 #define _IOGROUP_P 'P'
