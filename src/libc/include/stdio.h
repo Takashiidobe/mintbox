@@ -34,5 +34,6 @@ int snprintf(char *str, size_t size, const char *format, ...);
 int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 int sscanf(const char *str, const char *format, ...);
 ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+int fcloseall(void);
 
 #endif /* LIBC_STDIO_H */

@@ -112,6 +112,7 @@ int main(void) {
   write_padded_unsigned(second, 2);
   putchar('.');
   write_padded_unsigned(tv.tv_usec, 6);
+  putchar('\r');
   putchar('\n');
 
   return EXIT_SUCCESS;

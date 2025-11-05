@@ -28,3 +28,11 @@ void __stdio_release_file(FILE *file) {
   file->flags = 0;
   file->handle = -1;
 }
+
+FILE *__stdio_file_pool(void) {
+  return __file_pool;
+}
+
+int __stdio_file_pool_size(void) {
+  return FILE_POOL_SIZE;
+}

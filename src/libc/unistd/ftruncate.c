@@ -1,9 +1,19 @@
 #include "../gemdos/file.h"
+#include <errno.h>
+#include <stdint.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 
-#define FTRUNCATE (('F' << 8) | 4)
-
 int ftruncate(int fd, off_t length) {
-  long r = Fcntl(fd, length, FTRUNCATE);
-  return r;
+  if (fd < 0) {
+    errno = EBADF;
+    return -1;
+  }
+
+  int32_t result = Fcntl((int16_t)fd, (int32_t)length, FTRUNCATE);
+  if (result < 0) {
+    errno = (int)-result;
+    return -1;
+  }
+  return 0;
 }

@@ -13,5 +13,7 @@ struct __file {
 
 FILE *__stdio_alloc_file(void);
 void __stdio_release_file(FILE *file);
+FILE *__stdio_file_pool(void);
+int __stdio_file_pool_size(void);
 
 #endif /* LIBC_STDIO_INTERNAL_H */

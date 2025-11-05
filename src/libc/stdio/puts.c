@@ -6,6 +6,7 @@ int puts(const char *s) {
   while (*p) {
     putchar(*p++);
   }
+  putchar('\r');
   putchar('\n');
 
   return 0;
