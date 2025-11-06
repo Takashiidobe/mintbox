@@ -2,6 +2,7 @@
 #define LIBC_ERRNO_H
 
 extern int errno;
+#define __set_errno(err) (errno = err)
 
 // Gemdos error messages
 

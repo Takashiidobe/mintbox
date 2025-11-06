@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+cp ./out/box/* ~/.aranym/drive_c/bin/
+cp ./out/tests/* ~/.aranym/drive_c/bin/
+
+echo "finished copying"

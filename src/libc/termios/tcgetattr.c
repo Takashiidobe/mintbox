@@ -1,190 +1,98 @@
 #include "../gemdos/file.h"
-#include "./internal.h"
 #include <errno.h>
-#include <stdint.h>
-#include <string.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 
 #define VTIME_MS 100
 
-static void default_tchars(struct tchars *tc) {
-  tc->t_intrc = CINTR;
-  tc->t_quitc = CQUIT;
-  tc->t_startc = CSTART;
-  tc->t_stopc = CSTOP;
-  tc->t_eofc = CEOF;
-  tc->t_brkc = CEOL;
-}
-
-int tcgetattr(int fd, struct termios *termios_p) {
-  if (fd < 0) {
-    errno = EBADF;
-    return -1;
-  }
-  if (!termios_p) {
-    errno = EINVAL;
-    return -1;
-  }
-
+int tcgetattr(int fd, struct termios *stp) {
   struct sgttyb sg;
-  struct tchars tc;
+  struct tchars t;
   struct ltchars lt;
-  unsigned short vmin[2] = {0, 0};
-  short simple_flags = 0;
-  long state_bits[2] = {0, 0};
-  unsigned short tty_flags = 0;
-  unsigned short state = 0;
+  short flags;
+  unsigned short vmin[2];
+  long state, r;
 
-  int32_t result =
-      Fcntl((int16_t)fd, (int32_t)(intptr_t)&sg, (int16_t)TIOCGETP);
-  if (result < 0) {
-    errno = (int)-result;
+  r = Fcntl((short)fd, (long)&sg, TIOCGETP);
+  if (r < 0) {
+    __set_errno((int)-r);
     return -1;
   }
-
-  result = Fcntl((int16_t)fd, (int32_t)(intptr_t)&lt, (int16_t)TIOCGLTC);
-  if (result < 0) {
-    errno = (int)-result;
+  r = Fcntl((short)fd, (long)&t, TIOCGETC);
+  if (r < 0) {
+    __set_errno((int)-r);
     return -1;
   }
-
-  result = Fcntl((int16_t)fd, (int32_t)(intptr_t)&tc, (int16_t)TIOCGETC);
-  if (result < 0) {
-    default_tchars(&tc);
+  r = Fcntl((short)fd, (long)&lt, TIOCGLTC);
+  if (r < 0) {
+    __set_errno((int)-r);
+    return -1;
   }
-
-  result = Fcntl((int16_t)fd, (int32_t)(intptr_t)&vmin, (int16_t)TIOCGVMIN);
-  if (result < 0) {
-    vmin[0] = 1;
-    vmin[1] = 0;
+  r = ioctl(fd, TIOCGETD, &stp->c_line);
+  if (r < 0) {
+    __set_errno((int)-r);
+    return -1;
   }
-
-  result =
-      Fcntl((int16_t)fd, (int32_t)(intptr_t)&simple_flags, (int16_t)TIOCGFLAGS);
-  if (result >= 0)
-    tty_flags = (unsigned short)simple_flags;
-
-  result =
-      Fcntl((int16_t)fd, (int32_t)(intptr_t)&state_bits, (int16_t)TIOCGSTATE);
-  if (result >= 0)
-    state = (unsigned short)state_bits[0];
-
-  memset(termios_p, 0, sizeof(*termios_p));
-
-  termios_p->_c_ispeed = (unsigned short)(unsigned char)sg.sg_ispeed;
-  termios_p->_c_ospeed = (unsigned short)(unsigned char)sg.sg_ospeed;
-
-  termios_p->c_cc[VERASE] = (unsigned char)sg.sg_erase;
-  termios_p->c_cc[VKILL] = (unsigned char)sg.sg_kill;
-
-  termios_p->c_cc[VINTR] = (unsigned char)tc.t_intrc;
-  termios_p->c_cc[VQUIT] = (unsigned char)tc.t_quitc;
-  termios_p->c_cc[VSTART] = (unsigned char)tc.t_startc;
-  termios_p->c_cc[VSTOP] = (unsigned char)tc.t_stopc;
-  termios_p->c_cc[VEOF] = (unsigned char)tc.t_eofc;
-  termios_p->c_cc[VEOL] = (unsigned char)tc.t_brkc;
-
-  termios_p->c_cc[VSUSP] = (unsigned char)lt.t_suspc;
-  termios_p->c_cc[VDSUSP] = (unsigned char)lt.t_dsuspc;
-  termios_p->c_cc[VREPRINT] = (unsigned char)lt.t_rprntc;
-  termios_p->c_cc[VFLUSHO] = (unsigned char)lt.t_flushc;
-  termios_p->c_cc[VWERASE] = (unsigned char)lt.t_werasc;
-  termios_p->c_cc[VLNEXT] = (unsigned char)lt.t_lnextc;
-
-  if (vmin[1]) {
-    termios_p->c_cc[VMIN] = 0;
-    unsigned int vtime = vmin[1] / VTIME_MS;
-    if (vtime > 255)
-      vtime = 255;
-    termios_p->c_cc[VTIME] = (unsigned char)vtime;
+  r = Fcntl((short)fd, (long)&flags, TIOCGFLAGS);
+  if (r < 0) {
+    flags = 0;
+  }
+  r = Fcntl((short)fd, (long)&state, TIOCGSTATE);
+  if (r < 0) {
+    state = 0;
+  }
+  stp->c_iflag = (tcflag_t)(((flags & _TF_BRKINT) ? BRKINT : 0) |
+                            ((sg.sg_flags & CRMOD) ? ICRNL : 0) |
+                            ((sg.sg_flags & (EVENP | ODDP))
+                                 ? INPCK
+                                 : ((sg.sg_flags & RAW) ? 0 : IGNPAR)) |
+                            ((sg.sg_flags & TANDEM) ? (IXON | IXOFF) : 0) |
+                            ((sg.sg_flags & RAW) ? 0 : IXON));
+  stp->c_oflag = (tcflag_t)(sg.sg_flags & CRMOD) ? (OPOST | ONLCR) : 0;
+  stp->c_cflag =
+      (tcflag_t)(CREAD | ((flags & _TF_CAR) ? 0 : CLOCAL) |
+                 ((state & _TS_HPCL) ? HUPCL : 0) |
+                 (((flags & _TF_STOPBITS) == _TF_2STOP) ? CSTOPB : 0) |
+                 (flags & _TF_CHARBITS) |
+                 ((sg.sg_flags & RTSCTS) ? CRTSCTS : 0) |
+                 ((sg.sg_flags & EVENP) ? PARENB : 0) |
+                 ((sg.sg_flags & ODDP) ? (PARENB | PARODD) : 0));
+  stp->c_lflag =
+      (tcflag_t)((sg.sg_flags & (TOSTOP | NOFLSH | ECHOCTL)) |
+                 ((sg.sg_flags & ECHO) ? (ECHO | ECHOE | ECHOK) : 0) |
+                 ((sg.sg_flags & RAW)
+                      ? 0
+                      : ISIG | (sg.sg_flags & CBREAK ? 0 : ICANON)));
+  stp->_c_ispeed = (speed_t)sg.sg_ispeed;
+  stp->_c_ospeed = (speed_t)sg.sg_ospeed;
+  stp->c_cc[VEOF] = (cc_t)t.t_eofc;
+  stp->c_cc[VEOL] = (cc_t)t.t_brkc;
+  stp->c_cc[VERASE] = (cc_t)sg.sg_erase;
+  stp->c_cc[VINTR] = (cc_t)t.t_intrc;
+  stp->c_cc[VKILL] = (cc_t)sg.sg_kill;
+  stp->c_cc[VQUIT] = (cc_t)t.t_quitc;
+  stp->c_cc[VSUSP] = (cc_t)lt.t_suspc;
+  stp->c_cc[VSTART] = (cc_t)t.t_startc;
+  stp->c_cc[VSTOP] = (cc_t)t.t_stopc;
+  r = Fcntl((short)fd, (long)&vmin, TIOCGVMIN);
+  if (r < 0) {
+    stp->c_cc[VMIN] = (cc_t)1;
+    stp->c_cc[VTIME] = (cc_t)0;
   } else {
-    termios_p->c_cc[VMIN] = (unsigned char)vmin[0];
-    termios_p->c_cc[VTIME] = 0;
-  }
-
-  int line = 0;
-  if (ioctl(fd, TIOCGETD, &line) == 0)
-    termios_p->c_line = line;
-  else
-    termios_p->c_line = 0;
-
-  unsigned short sg_flags = (unsigned short)sg.sg_flags;
-
-  termios_p->c_cflag = CREAD;
-
-  switch (tty_flags & _TF_CHARBITS) {
-  case _TF_5BIT:
-    termios_p->c_cflag |= CS5;
-    break;
-  case _TF_6BIT:
-    termios_p->c_cflag |= CS6;
-    break;
-  case _TF_7BIT:
-    termios_p->c_cflag |= CS7;
-    break;
-  default:
-    termios_p->c_cflag |= CS8;
-    break;
-  }
-
-  if ((tty_flags & _TF_STOPBITS) == _TF_2STOP)
-    termios_p->c_cflag |= CSTOPB;
-
-  if (!(tty_flags & _TF_CAR))
-    termios_p->c_cflag |= CLOCAL;
-
-  if (state & _TS_HPCL)
-    termios_p->c_cflag |= HUPCL;
-
-  if (sg_flags & RTSCTS)
-    termios_p->c_cflag |= CRTSCTS;
-
-  if (sg_flags & EVENP) {
-    termios_p->c_cflag |= PARENB;
-    termios_p->c_cflag &= ~PARODD;
-  } else if (sg_flags & ODDP) {
-    termios_p->c_cflag |= (PARENB | PARODD);
-  }
-
-  termios_p->c_iflag = 0;
-  termios_p->c_oflag = 0;
-  termios_p->c_lflag = 0;
-
-  if (tty_flags & _TF_BRKINT)
-    termios_p->c_iflag |= BRKINT;
-
-  if (sg_flags & TANDEM)
-    termios_p->c_iflag |= (IXON | IXOFF);
-
-  if (sg_flags & CRMOD) {
-    termios_p->c_iflag |= ICRNL;
-    termios_p->c_oflag |= (OPOST | ONLCR);
-  }
-
-  if (sg_flags & ECHO)
-    termios_p->c_lflag |= ECHO;
-  if (sg_flags & NOFLSH)
-    termios_p->c_lflag |= NOFLSH;
-  if (sg_flags & TOSTOP)
-    termios_p->c_lflag |= TOSTOP;
-  if (sg_flags & ECHOCTL)
-    termios_p->c_lflag |= ECHOCTL;
-
-  if (sg_flags & RAW) {
-    termios_p->c_lflag &= ~(ICANON | ISIG | IEXTEN);
-    termios_p->c_iflag = 0;
-    termios_p->c_oflag = 0;
-  } else {
-    termios_p->c_lflag |= IEXTEN;
-    if (sg_flags & CBREAK) {
-      termios_p->c_lflag |= ISIG;
+    if (vmin[1]) {
+      stp->c_cc[VMIN] = (cc_t)0;
+      stp->c_cc[VTIME] =
+          (cc_t)(vmin[1] >= 0xff * VTIME_MS) ? 0xff : vmin[1] / VTIME_MS;
     } else {
-      termios_p->c_lflag |= (ICANON | ISIG);
+      stp->c_cc[VMIN] = (cc_t)(vmin[0] >= 0xff) ? 0xff : vmin[0];
+      stp->c_cc[VTIME] = (cc_t)0;
     }
   }
-
-  __termios_shadow_apply(fd, termios_p);
+  stp->c_cc[VLNEXT] = (cc_t)lt.t_lnextc;
+  stp->c_cc[VWERASE] = (cc_t)lt.t_werasc;
+  stp->c_cc[VDSUSP] = (cc_t)lt.t_dsuspc;
+  stp->c_cc[VREPRINT] = (cc_t)lt.t_rprntc;
+  stp->c_cc[VFLUSHO] = (cc_t)lt.t_flushc;
   return 0;
 }

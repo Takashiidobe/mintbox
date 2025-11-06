@@ -1,8 +1,8 @@
 #include <stddef.h>
 
 size_t strlen(const char *s) {
-  size_t len = 0;
-  while (*s++)
-    len++;
-  return len;
+  const char *p = s;
+  for (; *s; s++)
+    ;
+  return s - p;
 }
