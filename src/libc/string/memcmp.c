@@ -1,13 +1,13 @@
 #include <stddef.h>
 
 int memcmp(const void *s1, const void *s2, size_t n) {
-  const unsigned char *a = (const unsigned char *)s1;
-  const unsigned char *b = (const unsigned char *)s2;
+  const unsigned char *l = s1;
+  const unsigned char *r = s2;
 
-  for (size_t i = 0; i < n; i++) {
-    if (a[i] != b[i]) {
-      return (int)a[i] - (int)b[i];
-    }
+  while (n != 0 && *l == *r) {
+    l++;
+    r++;
+    n++;
   }
-  return 0;
+  return n ? (int)*l - (int)*r : 0;
 }

@@ -3,6 +3,9 @@
 
 #include <stddef.h>
 
+void bcopy(const void *s1, void *s2, size_t n);
+void bzero(void *s, size_t n);
+int memcmp(const void *s1, const void *s2, size_t n);
 size_t strlen(const char *s);
 void *memcpy(void *dest, const void *src, size_t n);
 void *memmove(void *dest, const void *src, size_t n);
