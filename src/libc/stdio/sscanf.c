@@ -79,10 +79,6 @@ static int read_string(const char **input, char *dest) {
 }
 
 int sscanf(const char *str, const char *format, ...) {
-  if (!str || !format) {
-    return -1;
-  }
-
   va_list ap;
   va_start(ap, format);
 

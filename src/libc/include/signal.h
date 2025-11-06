@@ -1,7 +1,7 @@
 #ifndef LIBC_SIGNAL_H
 #define LIBC_SIGNAL_H
 
-typedef void (*sighandler_t)(int);
+typedef void (*__sighandler_t)(int);
 
 #define __NSIG 32
 
@@ -41,10 +41,10 @@ typedef void (*sighandler_t)(int);
 #define SIGUSR2 30
 #define SIGPWR 31
 
-#define SIG_DFL ((sighandler_t)0)
-#define SIG_IGN ((sighandler_t)1)
-#define SIG_ERR ((sighandler_t)-1)
+#define SIG_DFL ((__sighandler_t)0)
+#define SIG_IGN ((__sighandler_t)1)
+#define SIG_ERR ((__sighandler_t) - 1)
 
-sighandler_t signal(int sig, sighandler_t handler);
+__sighandler_t signal(int sig, __sighandler_t handler);
 
 #endif /* LIBC_SIGNAL_H */

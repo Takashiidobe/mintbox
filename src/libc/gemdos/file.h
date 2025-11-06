@@ -12,23 +12,23 @@ typedef struct XATTR XATTR;
 typedef struct POLLFD POLLFD;
 
 /* Fattrib - Obtain or change file attributes. */
-static inline int16_t Fattrib(const int8_t *filename, int16_t wflag,
+static inline int16_t Fattrib(const char *filename, int16_t wflag,
                               int16_t attrib) {
   return (int16_t)trap_1_wlww(0x43, (long)filename, wflag, attrib);
 }
 
 /* Fchmod - Change file access mode bits. */
-static inline int32_t Fchmod(int8_t *name, int16_t mode) {
+static inline int32_t Fchmod(char *name, int16_t mode) {
   return (int32_t)trap_1_wlw(0x132, (long)name, mode);
 }
 
 /* Fchown - Change file ownership. */
-static inline int32_t Fchown(int8_t *name, int16_t uid, int16_t gid) {
+static inline int32_t Fchown(char *name, int16_t uid, int16_t gid) {
   return (int32_t)trap_1_wlww(0x131, (long)name, uid, gid);
 }
 
 /* Fchown16 - Change file ownership with follow flag. */
-static inline int32_t Fchown16(int8_t *name, int16_t uid, int16_t gid,
+static inline int32_t Fchown16(char *name, int16_t uid, int16_t gid,
                                int16_t flag) {
   return (int32_t)trap_1_wlwww(0x180, (long)name, uid, gid, flag);
 }
@@ -44,7 +44,7 @@ static inline int32_t Fcntl(int16_t fh, int32_t arg, int16_t cmd) {
 }
 
 /* Fcreate - Create a file. */
-static inline int16_t Fcreate(const int8_t *fname, int16_t attr) {
+static inline int16_t Fcreate(const char *fname, int16_t attr) {
   return (int16_t)trap_1_wlw(0x3C, (long)fname, attr);
 }
 
@@ -54,12 +54,12 @@ static inline void Fdatime(DOSTIME *timeptr, int16_t handle, int16_t wflag) {
 }
 
 /* Fdelete - Remove a file. */
-static inline int32_t Fdelete(const int8_t *fname) {
+static inline int32_t Fdelete(const char *fname) {
   return (int32_t)trap_1_wl(0x41, (long)fname);
 }
 
 /* Fopen - Open a file. */
-static inline int32_t Fopen(const int8_t *fname, int16_t mode) {
+static inline int32_t Fopen(const char *fname, int16_t mode) {
   return (int32_t)trap_1_wlw(0x3D, (long)fname, mode);
 }
 
@@ -127,7 +127,7 @@ static inline int32_t Finstat(int16_t fh) {
 }
 
 /* Flink - Create a hard link. */
-static inline int32_t Flink(int8_t *oldname, int8_t *newname) {
+static inline int32_t Flink(char *oldname, int8_t *newname) {
   return (int32_t)trap_1_wll(0x12D, (long)oldname, (long)newname);
 }
 
@@ -163,12 +163,12 @@ static inline int32_t Fputchar(int16_t fh, int32_t ch, int16_t mode) {
 }
 
 /* Freadlink - Read a symbolic link. */
-static inline int32_t Freadlink(int16_t bufsiz, int8_t *buf, int8_t *name) {
+static inline int32_t Freadlink(int16_t bufsiz, char *buf, int8_t *name) {
   return (int32_t)trap_1_wwll(0x12F, bufsiz, (long)buf, (long)name);
 }
 
 /* Frename - Rename a file. */
-static inline int32_t Frename(const int8_t *oldname, const int8_t *newname) {
+static inline int32_t Frename(const char *oldname, const char *newname) {
   return (int32_t)trap_1_wwll(0x56, 0, (long)oldname, (long)newname);
 }
 
@@ -196,7 +196,7 @@ static inline int32_t Fselect(uint16_t timeout, int32_t *rfds, int32_t *wfds,
 static inline void Fsetdta(DTA *buf) { (void)trap_1_wl(0x1A, (long)buf); }
 
 /* Fsfirst - Initiate a file search. */
-static inline int32_t Fsfirst(const int8_t *filename, int16_t attr) {
+static inline int32_t Fsfirst(const char *filename, int16_t attr) {
   return (int32_t)trap_1_wlw(0x4E, (long)filename, attr);
 }
 
@@ -204,12 +204,12 @@ static inline int32_t Fsfirst(const int8_t *filename, int16_t attr) {
 static inline int16_t Fsnext(void) { return (int16_t)trap_1_w(0x4F); }
 
 /* Fsymlink - Create a symbolic link. */
-static inline int32_t Fsymlink(int8_t *oldname, int8_t *newname) {
+static inline int32_t Fsymlink(char *oldname, char *newname) {
   return (int32_t)trap_1_wll(0x12E, (long)oldname, (long)newname);
 }
 
 /* Fstat64 - Obtain 64-bit file status information. */
-static inline int32_t Fstat64(int16_t flag, int8_t *name, STAT *stat) {
+static inline int32_t Fstat64(int16_t flag, char *name, STAT *stat) {
   return (int32_t)trap_1_wwll(0x14B, flag, (long)name, (long)stat);
 }
 
@@ -219,7 +219,7 @@ static inline int16_t Fsync(int16_t handle) {
 }
 
 /* Fxattr - Get or set extended file attributes. */
-static inline int32_t Fxattr(int16_t flag, int8_t *name, XATTR *xattr) {
+static inline int32_t Fxattr(int16_t flag, char *name, XATTR *xattr) {
   return (int32_t)trap_1_wwll(0x12C, flag, (long)name, (long)xattr);
 }
 

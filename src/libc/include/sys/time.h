@@ -14,5 +14,6 @@ struct timezone {
 };
 
 int gettimeofday(struct timeval *tv, struct timezone *tz);
+int settimeofday(struct timeval *tv, struct timezone *tz);
 
 #endif /* LIBC_SYS_TIME_H */

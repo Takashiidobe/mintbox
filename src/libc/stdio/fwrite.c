@@ -2,7 +2,7 @@
 #include "./internal.h"
 
 size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream) {
-  if (!stream || !ptr || size == 0 || nmemb == 0)
+  if (size == 0 || nmemb == 0)
     return 0;
 
   size_t total_bytes = size * nmemb;

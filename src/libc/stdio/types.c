@@ -36,10 +36,6 @@ void __stdio_release_file(FILE *file) {
   file->ungetc_value = 0;
 }
 
-FILE *__stdio_file_pool(void) {
-  return __file_pool;
-}
+FILE *__stdio_file_pool(void) { return __file_pool; }
 
-int __stdio_file_pool_size(void) {
-  return FILE_POOL_SIZE;
-}
+int __stdio_file_pool_size(void) { return FILE_POOL_SIZE; }

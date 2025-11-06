@@ -4,7 +4,7 @@ RANLIB ?= m68k-atari-mint-ranlib
 
 MAKEFLAGS+="-j $(shell nproc)"
 
-CFLAGS ?= -Os
+CFLAGS ?= -Os -Wall -Werror
 CPPFLAGS ?=
 
 LIBC_SRC_DIR := src/libc

@@ -8,8 +8,8 @@
 static int __ioctl_ttydisc = NTTYDISC;
 static int __ioctl_ldisc = LLITOUT;
 static struct tchars __ioctl_tchars = {CINTR, CQUIT, CSTART, CSTOP, CEOF, CEOL};
-static struct ltchars __ioctl_ltchars = {CSUSP, CDSUSP, CRPRNT, CFLUSHO, CWERASE,
-                                         CLNEXT};
+static struct ltchars __ioctl_ltchars = {CSUSP,   CDSUSP,  CRPRNT,
+                                         CFLUSHO, CWERASE, CLNEXT};
 
 static int handle_fallback(int fd, unsigned long request, void *arg) {
   if (!isatty(fd)) {
@@ -94,7 +94,7 @@ static int handle_fallback(int fd, unsigned long request, void *arg) {
   }
 }
 
-int ioctl(int fd, unsigned long request, void *arg) {
+int ioctl(int fd, int request, void *arg) {
   if (fd < 0) {
     errno = EBADF;
     return -1;

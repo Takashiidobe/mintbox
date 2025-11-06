@@ -6,6 +6,16 @@
 #define FILE_FLAG_INUSE 0x01
 #define FILE_FLAG_STATIC 0x02
 
+struct __io_mode {
+  unsigned int __read : 1;
+  unsigned int __write : 1;
+  unsigned int __append : 1;
+  unsigned int __binary : 1;
+  unsigned int __create : 1;
+  unsigned int __exclusive : 1;
+  unsigned int __truncate : 1;
+};
+
 struct __file {
   int handle;
   unsigned char flags;

@@ -6,11 +6,6 @@
 #include <stdlib.h>
 
 int vfprintf(FILE *stream, const char *format, va_list ap) {
-  if (!stream || !format) {
-    errno = EINVAL;
-    return EOF;
-  }
-
   va_list ap_copy;
   va_copy(ap_copy, ap);
   int len = vsnprintf(NULL, 0, format, ap_copy);

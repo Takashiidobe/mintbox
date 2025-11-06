@@ -29,18 +29,18 @@ int open(const char *path, int flags, ...) {
   }
 
   if (flags & (O_CREAT | O_TRUNC)) {
-    int32_t create_handle = Fcreate((const int8_t *)path, 0);
+    int32_t create_handle = Fcreate(path, 0);
     if (create_handle < 0) {
-      errno = (int)-create_handle;
+      errno = -create_handle;
       return -1;
     }
-    Fclose((int16_t)create_handle);
+    Fclose(create_handle);
   }
 
-  int32_t handle = Fopen((const int8_t *)path, access);
+  int32_t handle = Fopen(path, access);
   if (handle < 0) {
-    errno = (int)-handle;
+    errno = -handle;
     return -1;
   }
-  return (int)handle;
+  return handle;
 }

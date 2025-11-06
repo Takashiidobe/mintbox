@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+hatari-prg-args -q \
+  --tos emutos-512k/etos512us.img \
+  --conout 2 \
+  -- "$(pwd)/$1"

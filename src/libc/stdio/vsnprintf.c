@@ -1,9 +1,9 @@
 #include <limits.h>
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 
 static unsigned long value_to_unsigned(long value) {
   if (value < 0) {
@@ -61,10 +61,6 @@ static void append_string(const char *src, size_t len, char *dest, size_t size,
 int vsnprintf(char *str, size_t size, const char *format, va_list ap) {
   size_t stored = 0;
   size_t total = 0;
-
-  if (!format) {
-    return -1;
-  }
 
   while (*format) {
     if (*format != '%') {
@@ -137,9 +133,9 @@ int vsnprintf(char *str, size_t size, const char *format, va_list ap) {
       break;
     }
     case 'u': {
-      unsigned long value =
-          (length == 'l') ? va_arg(ap, unsigned long)
-                          : (unsigned long)va_arg(ap, unsigned int);
+      unsigned long value = (length == 'l')
+                                ? va_arg(ap, unsigned long)
+                                : (unsigned long)va_arg(ap, unsigned int);
       char buf[32];
       size_t len = format_unsigned(value, buf);
       append_string(buf, len, str, size, &stored, &total);

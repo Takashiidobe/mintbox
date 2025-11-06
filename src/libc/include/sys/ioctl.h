@@ -1,7 +1,188 @@
-#ifndef LIBC_SYS_IOCTL_H
-#define LIBC_SYS_IOCTL_H
+#ifndef LIBC_SYSGROUPCTL_H
+#define LIBC_SYSGROUPCTL_H
 
+#include <features.h>
 #include <sys/types.h>
+
+#define GROUP(g, n) (((g) << 8) | (n))
+
+#define TIOCGETP GROUP('T', 0)
+#define TIOCSETN GROUP('T', 1)
+#define TIOCGETC GROUP('T', 2)
+#define TIOCSETC GROUP('T', 3)
+#define TIOCGLTC GROUP('T', 4)
+#define TIOCSLTC GROUP('T', 5)
+#define TIOCGPGRP GROUP('T', 6)
+#define TIOCSPGRP GROUP('T', 7)
+#define TIOCFLUSH GROUP('T', 8)
+#define TIOCSTOP GROUP('T', 9)
+#define TIOCSTART GROUP('T', 10)
+#define TIOCGWINSZ GROUP('T', 11)
+#define TIOCSWINSZ GROUP('T', 12)
+#define TIOCGXKEY GROUP('T', 13)
+#define TIOCSXKEY GROUP('T', 14)
+#define TIOCIBAUD GROUP('T', 18)
+#define TIOCOBAUD GROUP('T', 19)
+#define TIOCCBRK GROUP('T', 20)
+#define TIOCSBRK GROUP('T', 21)
+#define TIOCGFLAGS GROUP('T', 22)
+#define TIOCSFLAGS GROUP('T', 23)
+#define TIOCOUTQ GROUP('T', 24)
+#define TIOCSETP GROUP('T', 25)
+#define TIOCHPCL GROUP('T', 26)
+#define TIOCCAR GROUP('T', 27)
+#define TIOCNCAR GROUP('T', 28)
+#define TIOCWONLINE GROUP('T', 29)
+#define TIOCSFLAGSB GROUP('T', 30)
+#define TIOCGSTATE GROUP('T', 31)
+#define TIOCSSTATEB GROUP('T', 32)
+#define TIOCGVMIN GROUP('T', 33)
+#define TIOCSVMIN GROUP('T', 34)
+#define TIOCGHUPCL GROUP('T', 98)
+#define TIOCSHUPCL GROUP('T', 99)
+#define TIOCGSOFTCAR GROUP('T', 100)
+#define TIOCSSOFTCAR GROUP('T', 101)
+#define TIOCBUFFER GROUP('T', 128)
+#define TIOCCTLMAP GROUP('T', 129)
+#define TIOCCTLGET GROUP('T', 130)
+#define TIOCCTLSET GROUP('T', 131)
+#define TIOCCTLSFAST GROUP('T', 132)
+#define TIOCCTLSSLOW GROUP('T', 133)
+#define TIONOTSEND GROUP('T', 134)
+#define TIOCERROR GROUP('T', 135)
+#define TIOCSCTTY GROUP('T', 245)
+
+// These are all faked
+#define TIOCLBIS GROUP('T', 246)
+#define TIOCLBIC GROUP('T', 247)
+#define TIOCMGET GROUP('T', 248)
+#define TIOCCDTR GROUP('T', 249)
+#define TIOCSDTR GROUP('T', 250)
+#define TIOCNOTTY GROUP('T', 251)
+
+// Not implemented in Mint
+#define TIOCGETD GROUP('T', 252)
+#define TIOCSETD GROUP('T', 253)
+#define TIOCLGET GROUP('T', 254)
+#define TIOCLSET GROUP('T', 255)
+
+#define TIOCM_LE 0001 // Unsupported
+#define TIOCM_DTR 0002
+#define TIOCM_RTS 0004
+#define TIOCM_ST 0010 // Unsupported
+#define TIOCM_SR 0020 // Unsupported
+#define TIOCM_CTS 0040
+#define TIOCM_CAR 0100
+#define TIOCM_CD TIOCM_CAR
+#define TIOCM_RNG 0200
+#define TIOCM_RI TIOCM_RNG
+#define TIOCM_DSR 0400 // Unsupported
+
+#define NTTYDISC 1
+
+#define FSTAT GROUP('F', 0)
+#define FIONREAD GROUP('F', 1)
+#define FIONWRITE GROUP('F', 2)
+#define FUTIME GROUP('F', 3)
+#define FTRUNCATE GROUP('F', 4)
+#define FIOEXCEPT GROUP('F', 5)
+#define FSTAT64 GROUP('F', 6)    // optional, from 1.15.4.
+#define FUTIME_UTC GROUP('F', 7) // optional, from 1.15.4.
+#define FIONBIO GROUP('F', 8)    // emulation only.
+
+// ioctls for processes
+#define PPROCADDR GROUP('P', 1)
+#define PBASEADDR GROUP('P', 2)
+#define PCTXTSIZE GROUP('P', 3)
+#define PSETFLAGS GROUP('P', 4)
+#define PGETFLAGS GROUP('P', 5)
+#define PTRACESFLAGS GROUP('P', 6)
+#define PTRACEGFLAGS GROUP('P', 7)
+
+// enable tracing
+#define P_ENABLE (1 << 0)
+#define P_DOS (1 << 1)   // unimplemented
+#define P_BIOS (1 << 2)  // unimplemented
+#define P_XBIOS (1 << 3) // unimplemented
+
+#define PTRACEGO GROUP('P', 8)
+#define PTRACEFLOW GROUP('P', 9)
+#define PTRACESTEP GROUP('P', 10)
+#define PTRACE11 GROUP('P', 11)
+#define PLOADINFO GROUP('P', 12)
+#define PFSTAT GROUP('P', 13)
+
+// ioctls for shared memory (SHM)
+#define SHMGETBLK GROUP('M', 0)
+#define SHMSETBLK GROUP('M', 1)
+
+// ioctls for cursor control
+#define TCURSOFF GROUP('c', 0)
+#define TCURSON GROUP('c', 1)
+#define TCURSBLINK GROUP('c', 2)
+#define TCURSSTEADY GROUP('c', 3)
+#define TCURSSRATE GROUP('c', 4)
+#define TCURSGRATE GROUP('c', 5)
+#define TCURSSDELAY GROUP('c', 6)
+#define TCURSGDELAY GROUP('c', 7)
+
+// c_lfags for termios
+#define CRMOD 0x0001
+#define CBREAK 0x0002
+#define ECHO 0x0004
+#define XTABS 0x0008
+#define RAW 0x0010
+#define LCASE 0x0020 // does nothing
+#define NOFLSH 0x0040
+#define TOSTOP 0x0100
+#define XKEY 0x0200
+#define ECHOCTL 0x0400
+#define TANDEM 0x1000
+#define RTSCTS 0x2000
+#define EVENP 0x4000
+#define ODDP 0x8000
+#define ANYP 0x0000
+
+// fake defines for line discipline
+#define LCRTBS 0x0001
+#define LCRTERA 0x0002
+#define LCRTKIL 0x0004
+#define LPRTERA 0x0010
+#define LFLUSHO 0x0020
+#define LLITOUT 0x0100
+
+// Baud rate constants for serial ports
+#define B0 0
+#define B50 1
+#define B75 2
+#define B110 3
+#define B134 4
+#define B135 4 // Compatibility alias for baud rate 134.5
+#define B150 5
+#define B200 6
+#define B300 7
+#define B600 8
+#define B1200 9
+#define B1800 10
+#define B2400 11
+#define B4800 12
+#define B9600 13
+#define B19200 14
+#define B38400 15
+#define B57600 16
+#define B115200 17
+#define B230400 18
+#define B460800 19
+#define B921600 20
+#define EXTA 21
+
+#define VTDELAY 0  // unsupported
+#define ALLDELAY 0 // unsupported
+
+struct __ploadinfo {
+  short fnamelen;
+  char *cmdlin, *fname;
+};
 
 struct winsize {
   unsigned short ws_row;
@@ -36,159 +217,18 @@ struct sgttyb {
   short sg_flags;
 };
 
-#define CRMOD 0x0001
-#define CBREAK 0x0002
-#ifndef ECHO
-#define ECHO 0x0004
-#endif
-#define XTABS 0x0008
-#define RAW 0x0010
-#define LCASE 0x0020
-#ifndef NOFLSH
-#define NOFLSH 0x0040
-#endif
-#ifndef TOSTOP
-#define TOSTOP 0x0100
-#endif
-#define XKEY 0x0200
-#ifndef ECHOCTL
-#define ECHOCTL 0x0400
-#endif
-#define TANDEM 0x1000
-#define RTSCTS 0x2000
-#define EVENP 0x4000
-#define ODDP 0x8000
-#define ANYP 0x0000
-
-#define LCRTBS 0x0001
-#define LCRTERA 0x0002
-#define LCRTKIL 0x0004
-#define LPRTERA 0x0010
-#define LFLUSHO 0x0020
-#define LLITOUT 0x0100
-
-#define _IOGROUP_T 'T'
-#define _IOGROUP_F 'F'
-#define _IOGROUP_P 'P'
-#define _IOGROUP_M 'M'
-#define _IOGROUP_c 'c'
-
-#define _IO(g, n) (((g) << 8) | (n))
-
-#define TIOCGETP _IO(_IOGROUP_T, 0)
-#define TIOCSETN _IO(_IOGROUP_T, 1)
-#define TIOCGETC _IO(_IOGROUP_T, 2)
-#define TIOCSETC _IO(_IOGROUP_T, 3)
-#define TIOCGLTC _IO(_IOGROUP_T, 4)
-#define TIOCSLTC _IO(_IOGROUP_T, 5)
-#define TIOCGPGRP _IO(_IOGROUP_T, 6)
-#define TIOCSPGRP _IO(_IOGROUP_T, 7)
-#define TIOCFLUSH _IO(_IOGROUP_T, 8)
-#define TIOCSTOP _IO(_IOGROUP_T, 9)
-#define TIOCSTART _IO(_IOGROUP_T, 10)
-#define TIOCGWINSZ _IO(_IOGROUP_T, 11)
-#define TIOCSWINSZ _IO(_IOGROUP_T, 12)
-#define TIOCGXKEY _IO(_IOGROUP_T, 13)
-#define TIOCSXKEY _IO(_IOGROUP_T, 14)
-#define TIOCIBAUD _IO(_IOGROUP_T, 18)
-#define TIOCOBAUD _IO(_IOGROUP_T, 19)
-#define TIOCCBRK _IO(_IOGROUP_T, 20)
-#define TIOCSBRK _IO(_IOGROUP_T, 21)
-#define TIOCGFLAGS _IO(_IOGROUP_T, 22)
-#define TIOCSFLAGS _IO(_IOGROUP_T, 23)
-#define TIOCOUTQ _IO(_IOGROUP_T, 24)
-#define TIOCSETP _IO(_IOGROUP_T, 25)
-#define TIOCHPCL _IO(_IOGROUP_T, 26)
-#define TIOCCAR _IO(_IOGROUP_T, 27)
-#define TIOCNCAR _IO(_IOGROUP_T, 28)
-#define TIOCWONLINE _IO(_IOGROUP_T, 29)
-#define TIOCSFLAGSB _IO(_IOGROUP_T, 30)
-#define TIOCGSTATE _IO(_IOGROUP_T, 31)
-#define TIOCSSTATEB _IO(_IOGROUP_T, 32)
-#define TIOCGVMIN _IO(_IOGROUP_T, 33)
-#define TIOCSVMIN _IO(_IOGROUP_T, 34)
-#define TIOCGHUPCL _IO(_IOGROUP_T, 98)
-#define TIOCSHUPCL _IO(_IOGROUP_T, 99)
-#define TIOCGSOFTCAR _IO(_IOGROUP_T, 100)
-#define TIOCSSOFTCAR _IO(_IOGROUP_T, 101)
-#define TIOCBUFFER _IO(_IOGROUP_T, 128)
-#define TIOCCTLMAP _IO(_IOGROUP_T, 129)
-#define TIOCCTLGET _IO(_IOGROUP_T, 130)
-#define TIOCCTLSET _IO(_IOGROUP_T, 131)
-#define TIOCCTLSFAST _IO(_IOGROUP_T, 132)
-#define TIOCCTLSSLOW _IO(_IOGROUP_T, 133)
-#define TIONOTSEND _IO(_IOGROUP_T, 134)
-#define TIOCERROR _IO(_IOGROUP_T, 135)
-#define TIOCSCTTY _IO(_IOGROUP_T, 245)
-#define TIOCLBIS _IO(_IOGROUP_T, 246)
-#define TIOCLBIC _IO(_IOGROUP_T, 247)
-#define TIOCMGET _IO(_IOGROUP_T, 248)
-#define TIOCCDTR _IO(_IOGROUP_T, 249)
-#define TIOCSDTR _IO(_IOGROUP_T, 250)
-#define TIOCNOTTY _IO(_IOGROUP_T, 251)
-#define TIOCGETD _IO(_IOGROUP_T, 252)
-#define TIOCSETD _IO(_IOGROUP_T, 253)
-#define TIOCLGET _IO(_IOGROUP_T, 254)
-#define TIOCLSET _IO(_IOGROUP_T, 255)
-
-#define TIOCM_LE 0001
-#define TIOCM_DTR 0002
-#define TIOCM_RTS 0004
-#define TIOCM_ST 0010
-#define TIOCM_SR 0020
-#define TIOCM_CTS 0040
-#define TIOCM_CAR 0100
-#define TIOCM_CD TIOCM_CAR
-#define TIOCM_RNG 0200
-#define TIOCM_RI TIOCM_RNG
-#define TIOCM_DSR 0400
-
-#define NTTYDISC 1
-
-#define FSTAT _IO(_IOGROUP_F, 0)
-#define FIONREAD _IO(_IOGROUP_F, 1)
-#define FIONWRITE _IO(_IOGROUP_F, 2)
-#define FUTIME _IO(_IOGROUP_F, 3)
-#define FTRUNCATE _IO(_IOGROUP_F, 4)
-#define FIOEXCEPT _IO(_IOGROUP_F, 5)
-#define FSTAT64 _IO(_IOGROUP_F, 6)
-#define FUTIME_UTC _IO(_IOGROUP_F, 7)
-#define FIONBIO _IO(_IOGROUP_F, 8)
-
-#define PPROCADDR _IO(_IOGROUP_P, 1)
-#define PBASEADDR _IO(_IOGROUP_P, 2)
-#define PCTXTSIZE _IO(_IOGROUP_P, 3)
-#define PSETFLAGS _IO(_IOGROUP_P, 4)
-#define PGETFLAGS _IO(_IOGROUP_P, 5)
-#define PTRACESFLAGS _IO(_IOGROUP_P, 6)
-#define PTRACEGFLAGS _IO(_IOGROUP_P, 7)
-#define PTRACEGO _IO(_IOGROUP_P, 8)
-#define PTRACEFLOW _IO(_IOGROUP_P, 9)
-#define PTRACESTEP _IO(_IOGROUP_P, 10)
-#define PTRACE11 _IO(_IOGROUP_P, 11)
-#define PLOADINFO _IO(_IOGROUP_P, 12)
-#define PFSTAT _IO(_IOGROUP_P, 13)
-
-struct __ploadinfo {
-  short fnamelen;
-  char *cmdlin;
-  char *fname;
+struct xkey {
+  short xk_num;
+  char xk_def[8];
 };
 
-#define P_ENABLE 1
+struct _mutimbuf {
+  unsigned short actime, acdate; // GEMDOS format
+  unsigned short modtime, moddate;
+};
 
-#define SHMGETBLK _IO(_IOGROUP_M, 0)
-#define SHMSETBLK _IO(_IOGROUP_M, 1)
+int ioctl(int fd, int request, void *arg);
+int stty(int, struct sgttyb *);
+int gtty(int, struct sgttyb *);
 
-#define TCURSOFF _IO(_IOGROUP_c, 0)
-#define TCURSON _IO(_IOGROUP_c, 1)
-#define TCURSBLINK _IO(_IOGROUP_c, 2)
-#define TCURSSTEADY _IO(_IOGROUP_c, 3)
-#define TCURSSRATE _IO(_IOGROUP_c, 4)
-#define TCURSGRATE _IO(_IOGROUP_c, 5)
-#define TCURSSDELAY _IO(_IOGROUP_c, 6)
-#define TCURSGDELAY _IO(_IOGROUP_c, 7)
-
-int ioctl(int fd, unsigned long request, void *arg);
-
-#endif /* LIBC_SYS_IOCTL_H */
+#endif /* LIBC_SYSGROUPCTL_H */

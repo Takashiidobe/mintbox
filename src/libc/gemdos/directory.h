@@ -9,7 +9,7 @@ typedef struct DISKINFO DISKINFO;
 typedef struct XATTR XATTR;
 
 // Dchroot - Change the root directory for the calling process.
-static inline int32_t Dchroot(const int8_t *path) {
+static inline int32_t Dchroot(const char *path) {
   return (int32_t)trap_1_wl(0x14A, (long)path);
 }
 
@@ -24,12 +24,12 @@ static inline int32_t Dcntl(int16_t cmd, int8_t *name, int32_t arg) {
 }
 
 // Dcreate - Create a directory.
-static inline int32_t Dcreate(const int8_t *path) {
+static inline int32_t Dcreate(const char *path) {
   return (int32_t)trap_1_wl(0x39, (long)path);
 }
 
 // Ddelete - Delete a directory.
-static inline int32_t Ddelete(const int8_t *path) {
+static inline int32_t Ddelete(const char *path) {
   return (int32_t)trap_1_wl(0x3A, (long)path);
 }
 
@@ -72,7 +72,7 @@ static inline int32_t Dreaddir(int16_t len, int32_t dirhandle, int8_t *buf) {
 }
 
 // Dreadlabel - Read file-system label.
-static inline int32_t Dreadlabel(const int8_t *path, int8_t *label,
+static inline int32_t Dreadlabel(const char *path, int8_t *label,
                                  int16_t length) {
   return (int32_t)trap_1_wllw(0x152, (long)path, (long)label, length);
 }
@@ -95,12 +95,12 @@ static inline int32_t Dsetkey(int32_t hidev, int32_t lowdev, int8_t *key,
 }
 
 // Dsetpath - Set the current directory.
-static inline int16_t Dsetpath(const int8_t *path) {
+static inline int16_t Dsetpath(const char *path) {
   return (int16_t)trap_1_wl(0x3B, (long)path);
 }
 
 // Dwritelabel - Set file-system label.
-static inline int32_t Dwritelabel(const int8_t *path, const int8_t *label) {
+static inline int32_t Dwritelabel(const char *path, const char *label) {
   return (int32_t)trap_1_wll(0x153, (long)path, (long)label);
 }
 

@@ -3,18 +3,17 @@
 #include <signal.h>
 #include <stdint.h>
 
-sighandler_t signal(int sig, sighandler_t handler) {
+__sighandler_t signal(int sig, __sighandler_t handler) {
   if (sig <= 0 || sig >= __NSIG) {
     errno = EINVAL;
     return SIG_ERR;
   }
 
-  int32_t previous =
-      Psignal((int16_t)sig, (int32_t)(intptr_t)handler);
+  int32_t previous = Psignal((int16_t)sig, (int32_t)(intptr_t)handler);
   if (previous < 0) {
     errno = (int)-previous;
     return SIG_ERR;
   }
 
-  return (sighandler_t)(intptr_t)previous;
+  return (__sighandler_t)(intptr_t)previous;
 }
