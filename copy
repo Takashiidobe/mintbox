@@ -1,6 +1,23 @@
 #!/usr/bin/env bash
 
-cp ./out/box/* ~/.aranym/drive_c/bin/
-cp ./out/tests/* ~/.aranym/drive_c/bin/
+set -euo pipefail
+
+dest="${HOME}/.aranym/drive_c/bin"
+
+copy_dir() {
+  local dir="$1"
+  shopt -s nullglob
+  for src in "$dir"/*; do
+    [[ -f "$src" ]] || continue
+    local base
+    base="$(basename "$src")"
+    [[ "$base" == *.* ]] && continue
+    cp "$src" "$dest/"
+  done
+  shopt -u nullglob
+}
+
+copy_dir ./out/box
+copy_dir ./out/tests
 
 echo "finished copying"

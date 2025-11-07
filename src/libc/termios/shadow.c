@@ -1,5 +1,4 @@
 #include "./internal.h"
-#include <string.h>
 
 #define TERMIOS_SHADOW_SLOTS 8
 

@@ -1,22 +1,16 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 extern char **environ;
 
-static const char *find_env(const char *name) {
-  if (!environ || !name)
-    return NULL;
+static void dump_env(const char *label, char **env, int limit) {
+  puts(label);
+  if (!env)
+    return;
 
-  for (char **entry = environ; *entry; ++entry) {
-    const char *pair = *entry;
-    const char *key = name;
-    while (*pair && *key && *pair == *key) {
-      ++pair;
-      ++key;
-    }
-    if (*key == '\0' && *pair == '=')
-      return pair + 1;
+  for (int i = 0; env[i] && i < limit; ++i) {
+    printf("[%d] %s\n", i, env[i]);
   }
-  return NULL;
 }
 
 int main(int argc, char **argv, char **envp) {
@@ -25,14 +19,9 @@ int main(int argc, char **argv, char **envp) {
     printf("argv[%d] = \"%s\"\n", i, argv[i]);
   }
 
-  puts("-- initial environ --");
-  if (envp) {
-    for (int i = 0; envp[i] && i < 5; ++i) {
-      printf("envp[%d] = \"%s\"\n", i, envp[i]);
-    }
-  }
+  dump_env("-- initial environ --", envp, 5);
 
-  const char *demo_val = find_env("ARGV_ENV_TEST");
+  char *demo_val = getenv("ARGV_ENV_TEST");
   if (demo_val)
     printf("Found ARGV_ENV_TEST=%s\n", demo_val);
   else
@@ -40,13 +29,50 @@ int main(int argc, char **argv, char **envp) {
 
   static char var1[] = "CUSTOM_ONE=foo";
   static char var2[] = "CUSTOM_TWO=bar";
-  static char *custom_env[] = {var1, var2, NULL};
+  static char var3[] = "CUSTOM_ONE=baz";
 
-  environ = custom_env;
-  puts("-- overridden environ --");
-  for (int i = 0; environ[i]; ++i) {
-    printf("environ[%d] = \"%s\"\n", i, environ[i]);
+  if (putenv(var1) != 0 || putenv(var2) != 0 || putenv(var3) != 0) {
+    puts("putenv failed");
+    return 1;
   }
+
+  dump_env("-- environ after putenv --", environ, 6);
+  char *one = getenv("CUSTOM_ONE");
+  char *two = getenv("CUSTOM_TWO");
+  printf("CUSTOM_ONE via getenv: %s\n", one ? one : "(null)");
+  printf("CUSTOM_TWO via getenv: %s\n", two ? two : "(null)");
+
+  if (setenv("SETENV_ONE", "alpha", 0) != 0 ||
+      setenv("SETENV_ONE", "beta", 0) != 0) {
+    puts("setenv (no overwrite) failed");
+    return 1;
+  }
+  printf("SETENV_ONE after no-overwrite setenv: %s\n",
+         getenv("SETENV_ONE"));
+
+  if (setenv("SETENV_ONE", "gamma", 1) != 0) {
+    puts("setenv overwrite failed");
+    return 1;
+  }
+  printf("SETENV_ONE after overwrite setenv: %s\n", getenv("SETENV_ONE"));
+
+  if (unsetenv("CUSTOM_TWO") != 0) {
+    puts("unsetenv failed");
+    return 1;
+  }
+  dump_env("-- environ after unsetenv CUSTOM_TWO --", environ, 6);
+
+  if (clearenv() != 0) {
+    puts("clearenv failed");
+    return 1;
+  }
+  dump_env("-- environ after clearenv --", environ, 6);
+
+  if (setenv("POST_CLEAR", "1", 1) != 0) {
+    puts("setenv after clearenv failed");
+    return 1;
+  }
+  dump_env("-- environ after repopulating --", environ, 6);
 
   return 0;
 }

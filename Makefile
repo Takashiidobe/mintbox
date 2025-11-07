@@ -1,8 +1,9 @@
-COMPILER ?= m68k-atari-mint-gcc
-AR ?= m68k-atari-mint-ar
-RANLIB ?= m68k-atari-mint-ranlib
+COMPILER_PREFIX ?= m68k-atari-mintelf
+COMPILER ?= $(COMPILER_PREFIX)-gcc
+AR ?= $(COMPILER_PREFIX)-ar
+RANLIB ?= $(COMPILER_PREFIX)-ranlib
 
-MAKEFLAGS += -j $(shell nproc)
+# MAKEFLAGS += -j $(shell nproc)
 
 COMMON_CFLAGS := -m68040 -Os -Wall -Werror -ffreestanding -fno-builtin -fno-stack-protector \
                  -fno-pic 

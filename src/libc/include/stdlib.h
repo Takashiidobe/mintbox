@@ -16,4 +16,10 @@ __attribute__((__noreturn__)) void exit(int status);
 char *utoa(char *dst, long value);
 char *itoa(char *dst, long value);
 
+char *getenv(const char *name);
+int putenv(char *);
+int clearenv(void);
+int setenv(const char *name, const char *value, int overwrite);
+int unsetenv(const char *name);
+
 #endif /* LIBC_STDLIB_H */

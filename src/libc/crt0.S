@@ -1,10 +1,20 @@
+#ifdef __ELF__
+#  define CSYM(x)        x
+#  define CTYPE(fn)      .type fn,@function
+#  define CSIZE(fn)      .size fn,.-fn
+#else
+#  define CSYM(x)        _##x
+#  define CTYPE(fn)      /* a.out ignores .type */
+#  define CSIZE(fn)      /* a.out ignores .size */
+#endif
+
         .text
         .even
         .globl  _start
-        .type   _start,@function
-        .globl  ___libc_start_main
-        .globl  _acc_main
-        .globl  _base
+        CTYPE(_start)
+        .globl  CSYM(__libc_start_main)
+        .globl  CSYM(acc_main)
+        .globl  CSYM(base)
 
 _start:
         subl    %a6, %a6                | clear a6 (helps some debuggers)
@@ -14,9 +24,9 @@ _start:
         | a0 != 0 and a0@(36) == 0  => ACC
         | otherwise                  => PRG
         cmpl    #0, %a0
-        beqs    start_prg           | a0 == 0 => program
-        tstl    %a0@(36)              | parent basepage pointer
-        bnes    start_prg           | if non-zero, treat as program
+        beqs    start_prg
+        tstl    %a0@(36)               | parent basepage pointer
+        bnes    start_prg
 
         | ---- Accessory entry ----
         | ACC basepage is in a0
@@ -35,11 +45,11 @@ after_stack_setup:
         bclr    #0, %d0                | word-align (round down)
         movel   %d0, %sp
         subl    #64, %sp               | small scratch, per mintlib convention
-        movel   %a5, _base
+        movel   %a5, CSYM(__base)
 
 after_stack:
         | ---- Zero BSS: [_edata, _end) ----
-        lea     _edata, %a0
+        lea     _edata, %a0            | keep linker symbols as-is
         lea     _end,   %a1
 bss_loop:
         cmpa.l  %a1, %a0
@@ -52,7 +62,7 @@ bss_done:
         tstb    %d7
         bnes    accessory_entry
         movel   %a5, -(%sp)
-        jsr     ___libc_start_main
+        jsr     CSYM(__libc_start_main)
         addql   #4, %sp
 
         | ---- Exit via GEMDOS Pterm (0x4C), status on stack ----
@@ -61,9 +71,9 @@ bss_done:
         trap    #1                     | does not return
 
 accessory_entry:
-        jsr     _acc_main
+        jsr     CSYM(acc_main)
 
 hang:
-        bra     hang                 | safety if trap returns
+        bra     hang                   | safety if trap returns
 
-        .size   _start,.-_start
+        CSIZE(_start)

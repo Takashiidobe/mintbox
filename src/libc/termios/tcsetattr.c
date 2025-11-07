@@ -45,7 +45,7 @@ static inline void apply_iflag_oflag_cflag_to_sg(
     sg->sg_flags |= RAW;
   }
 
-  /* Driver “flags” and “state” derived from termios c_iflag/c_cflag. */
+  /* Driver flags and state derived from termios c_iflag/c_cflag. */
   short flags = 0;
   flags |= (tio->c_cflag & CSTOPB) ? _TF_2STOP : _TF_1STOP;
   flags |= (tio->c_cflag & CLOCAL) ? 0 : _TF_CAR;
@@ -96,8 +96,6 @@ static inline void compute_vmin_payload(const struct termios *tio,
     vmin_out[1] = (unsigned short)(tio->c_cc[VTIME] * VTIME_MS);
   }
 }
-
-/* ---------- Main function ---------- */
 
 int tcsetattr(int fd, int action, const struct termios *stp) {
   struct sgttyb sg;
