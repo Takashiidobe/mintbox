@@ -1,5 +1,5 @@
-#include "../gemdos/process.h"
 #include <errno.h>
+#include <mint/mintbind.h>
 #include <signal.h>
 #include <stdint.h>
 

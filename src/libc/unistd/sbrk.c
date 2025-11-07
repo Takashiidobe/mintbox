@@ -1,4 +1,4 @@
-#include "../gemdos/memory.h"
+#include <mint/mintbind.h>
 #include <limits.h>
 #include <stdint.h>
 #include <unistd.h>

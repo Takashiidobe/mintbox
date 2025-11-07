@@ -1,4 +1,5 @@
-#include "../gemdos/process.h"
+
+#include <mint/mintbind.h>
 #include <stdint.h>
 #include <stdlib.h>
 

@@ -1,4 +1,4 @@
-#include "../gemdos/file.h"
+#include <mint/mintbind.h>
 #include <errno.h>
 #include <stdint.h>
 #include <unistd.h>

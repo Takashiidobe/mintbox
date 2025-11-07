@@ -1,6 +1,6 @@
-#include "../gemdos/file.h"
 #include <errno.h>
 #include <fcntl.h>
+#include <mint/mintbind.h>
 #include <stdarg.h>
 #include <stdint.h>
 

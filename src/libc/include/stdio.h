@@ -39,5 +39,6 @@ int fcloseall(void);
 int ferror(FILE *f);
 int fputc(int c, FILE *f);
 char *fgets(char *s, int n, FILE *fp);
+int fileno(FILE *stream);
 
 #endif /* LIBC_STDIO_H */

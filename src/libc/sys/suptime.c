@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <sys/uptime.h>
 
-#include "../gemdos/system.h"
+#include <mint/mintbind.h>
 
 int suptime(int32_t *uptime, int32_t loadaverage[3]) {
   if (uptime == NULL) {

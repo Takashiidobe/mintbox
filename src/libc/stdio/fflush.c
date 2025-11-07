@@ -1,5 +1,5 @@
-#include "../gemdos/network.h"
 #include "./internal.h"
+#include <mint/mintbind.h>
 #include <stdio.h>
 
 static int fflush_single(FILE *stream) {
@@ -18,7 +18,8 @@ int fflush(FILE *stream) {
     int result = 0;
 
     FILE *standard_streams[] = {stdout, stderr};
-    for (unsigned i = 0; i < sizeof(standard_streams) / sizeof(standard_streams[0]); ++i) {
+    for (unsigned i = 0;
+         i < sizeof(standard_streams) / sizeof(standard_streams[0]); ++i) {
       if (fflush_single(standard_streams[i]) == EOF)
         result = EOF;
     }

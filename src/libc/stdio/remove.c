@@ -1,6 +1,5 @@
-#include "../gemdos/directory.h"
-#include "../gemdos/file.h"
 #include <errno.h>
+#include <mint/mintbind.h>
 #include <stdio.h>
 
 int remove(const char *path) {

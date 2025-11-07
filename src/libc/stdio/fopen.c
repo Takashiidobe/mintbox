@@ -1,5 +1,5 @@
-#include "../gemdos/file.h"
 #include "./internal.h"
+#include <mint/mintbind.h>
 
 FILE *fopen(const char *path, const char *mode) {
   if (!path || !mode)

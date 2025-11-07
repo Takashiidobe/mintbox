@@ -1,5 +1,5 @@
-#include "../gemdos/file.h"
 #include "./internal.h"
+#include <mint/mintbind.h>
 #include <stdio.h>
 
 int fcloseall(void) {

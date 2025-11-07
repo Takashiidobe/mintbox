@@ -5,7 +5,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "../libc/gemdos/file.h"
+#include <mint/mintbind.h>
 
 static bool test_tiocgwinsz(void) {
   struct winsize ws;

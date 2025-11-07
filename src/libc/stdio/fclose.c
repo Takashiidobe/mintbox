@@ -1,5 +1,5 @@
-#include "../gemdos/file.h"
 #include "./internal.h"
+#include <mint/mintbind.h>
 
 int fclose(FILE *stream) {
   if (!stream)
