@@ -1,12 +1,13 @@
-#include "../gemdos/file.h"
 #include "./internal.h"
+#include <stdio.h>
+#include <unistd.h>
 
 size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream) {
   if (size == 0 || nmemb == 0)
     return 0;
 
   size_t total_bytes = size * nmemb;
-  long ret = Fwrite((short)stream->handle, (long)total_bytes, ptr);
+  long ret = write((short)stream->handle, ptr, (long)total_bytes);
   if (ret <= 0)
     return 0;
 

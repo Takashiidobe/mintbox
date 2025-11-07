@@ -4,7 +4,7 @@ RANLIB ?= m68k-atari-mint-ranlib
 
 MAKEFLAGS += -j $(shell nproc)
 
-COMMON_CFLAGS := -Os -Wall -Werror -ffreestanding -fno-builtin -fno-stack-protector \
+COMMON_CFLAGS := -m68040 -Os -Wall -Werror -ffreestanding -fno-builtin -fno-stack-protector \
                  -fno-pic 
 
 
