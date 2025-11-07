@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern char **environ;
+extern char **__environ;
 
 static void dump_env(const char *label, char **env, int limit) {
   puts(label);
@@ -36,7 +36,7 @@ int main(int argc, char **argv, char **envp) {
     return 1;
   }
 
-  dump_env("-- environ after putenv --", environ, 6);
+  dump_env("-- environ after putenv --", __environ, 6);
   char *one = getenv("CUSTOM_ONE");
   char *two = getenv("CUSTOM_TWO");
   printf("CUSTOM_ONE via getenv: %s\n", one ? one : "(null)");
@@ -47,8 +47,7 @@ int main(int argc, char **argv, char **envp) {
     puts("setenv (no overwrite) failed");
     return 1;
   }
-  printf("SETENV_ONE after no-overwrite setenv: %s\n",
-         getenv("SETENV_ONE"));
+  printf("SETENV_ONE after no-overwrite setenv: %s\n", getenv("SETENV_ONE"));
 
   if (setenv("SETENV_ONE", "gamma", 1) != 0) {
     puts("setenv overwrite failed");
@@ -60,19 +59,19 @@ int main(int argc, char **argv, char **envp) {
     puts("unsetenv failed");
     return 1;
   }
-  dump_env("-- environ after unsetenv CUSTOM_TWO --", environ, 6);
+  dump_env("-- environ after unsetenv CUSTOM_TWO --", __environ, 6);
 
   if (clearenv() != 0) {
     puts("clearenv failed");
     return 1;
   }
-  dump_env("-- environ after clearenv --", environ, 6);
+  dump_env("-- environ after clearenv --", __environ, 6);
 
   if (setenv("POST_CLEAR", "1", 1) != 0) {
     puts("setenv after clearenv failed");
     return 1;
   }
-  dump_env("-- environ after repopulating --", environ, 6);
+  dump_env("-- environ after repopulating --", __environ, 6);
 
   return 0;
 }

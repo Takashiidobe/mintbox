@@ -10,7 +10,7 @@ static char *default_argv[] = {"", NULL};
 
 int __libc_argc = 1;
 char **__libc_argv = default_argv;
-char **environ = NULL;
+char **__environ = NULL;
 BASEPAGE *__base = NULL;
 
 static int is_space(char ch) { return ch == ' ' || ch == '\t'; }
@@ -23,7 +23,7 @@ static uint8_t *align4(uint8_t *ptr) {
 
 static void init_environ(const BASEPAGE *bp, uint8_t **arena) {
   char **dst = (char **)*arena;
-  environ = dst;
+  __environ = dst;
 
   char *entry = bp->p_env;
   if (entry) {
@@ -119,7 +119,7 @@ int __libc_start_main(BASEPAGE *bp) {
   char *cmdline = copy_command_line(bp, &arena);
   init_args(cmdline, &arena);
 
-  return main(__libc_argc, __libc_argv, environ);
+  return main(__libc_argc, __libc_argv, __environ);
 }
 
 __attribute__((noreturn)) void acc_main(void) {
