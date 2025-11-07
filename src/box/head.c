@@ -11,106 +11,90 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BUF_SZ 512
+#define BUFSZ 4096
 
-static int head_stream(FILE *in, size_t n) {
-  unsigned char buf[BUF_SZ];
+static int head_stream(FILE *fp, size_t max_lines) {
+  char buf[BUFSZ];
   size_t lines = 0;
 
-  for (;;) {
-    size_t r = fread(buf, 1, BUF_SZ, in);
-    if (r == 0) {
-      if (ferror(in))
-        return -1;
-      break; // EOF
-    }
-
-    size_t upto = r;
-    for (size_t i = 0; i < r; i++) {
-      if (buf[i] == '\n') {
-        lines++;
-        if (lines == n) {
-          upto = i + 1;
-          if (fwrite(buf, 1, upto, stdout) != upto)
-            return -1;
-          return 0;
-        }
-      } else if (buf[i] == '\r') {
-        lines++;
-        if (i + 1 < r && buf[i + 1] == '\n') {
-        }
-        if (lines == n) {
-          upto = (i + 1 < r && buf[i + 1] == '\n') ? (i + 2) : (i + 1);
-          if (fwrite(buf, 1, upto, stdout) != upto)
-            return -1;
-          return 0;
-        }
-      }
-    }
-
-    if (fwrite(buf, 1, upto, stdout) != upto)
+  while (lines < max_lines && fgets(buf, sizeof(buf), fp)) {
+    if (fputs(buf, stdout) == EOF)
       return -1;
+
+    if (strchr(buf, '\n') != NULL)
+      lines++;
   }
 
+  return ferror(fp) ? -1 : 0;
+}
+
+static int print_header(const char *name, int first) {
+  if (!first)
+    putchar('\n');                      /* blank line between files */
+  if (printf("==> %s <==\n", name) < 0) /* header */
+    return -1;
   return 0;
 }
 
-static void usage(const char *prog) {
-  fprintf(stderr, "Usage: %s [-n N] FILE | -\n", prog);
-}
-
 int main(int argc, char **argv) {
-  const char *prog = (argc > 0 && argv[0]) ? argv[0] : "head";
-  long n = 10; // default
+  long n = 10;
+  int argi = 1;
+  int status = 0;
 
-  int i = 1;
-  while (i < argc && argv[i][0] == '-') {
-    if (strcmp(argv[i], "-") == 0)
-      break; // stdin sentinel
-    if (strcmp(argv[i], "-n") == 0) {
-      if (i + 1 >= argc) {
-        usage(prog);
-        return 2;
-      }
-      char *end = NULL;
-      n = atoi(argv[i + 1]);
-      if (end == argv[i + 1] || n <= 0) {
-        fprintf(stderr, "%s: invalid line count: %s\n", prog, argv[i + 1]);
-        return 2;
-      }
-      i += 2;
-    } else {
-      // Allow lone "-" handled later, otherwise unknown flag.
-      if (strcmp(argv[i], "-") != 0) {
-        usage(prog);
-        return 2;
-      }
-      break;
+  /* Minimal "-n N" handling (e.g., head -n 25 file). */
+  if (argi + 1 < argc && strcmp(argv[argi], "-n") == 0) {
+    char *end = NULL;
+    int v = atoi(argv[argi + 1]);
+    if (!end || *end != '\0') {
+      fprintf(stderr, "head: invalid number: %s\n", argv[argi + 1]);
+      return 2;
     }
+    n = v;
+    argi += 2;
   }
 
-  if (i >= argc) {
-    usage(prog);
-    return 2;
-  }
-  const char *path = argv[i];
-
-  int rc = 0;
-  if (strcmp(path, "-") == 0) {
-    if (head_stream(stdin, (size_t)n) != 0) {
-      fprintf(stderr, "%s: error reading stdin\n", prog);
-      rc = 1;
-    }
-  } else {
-    FILE *f = fopen(path, "rb");
-    if (!f) {
-      fprintf(stderr, "%s: cannot open '%s': %s\n", prog, path,
-              strerror(errno));
+  int files = argc - argi;
+  if (files <= 0) {
+    /* stdin */
+    if (head_stream(stdin, n) < 0) {
+      perror("head: read error");
       return 1;
     }
-    rc = (head_stream(f, (size_t)n) == 0) ? 0 : 1;
-    fclose(f);
+    return 0;
   }
 
-  return rc;
+  int first = 1;
+  for (; argi < argc; ++argi) {
+    const char *name = argv[argi];
+    FILE *fp = NULL;
+
+    if (strcmp(name, "-") == 0) {
+      fp = stdin;
+    } else {
+      fp = fopen(name, "rb");
+
+      if (!fp) {
+        fprintf(stderr, "head: cannot open '%s': %s\n", name, strerror(errno));
+        status = 1;
+        continue;
+      }
+    }
+
+    if (files > 1) {
+      if (print_header(name, first) < 0) {
+        status = 1;
+      }
+      first = 0;
+    }
+
+    if (head_stream(fp, n) < 0) {
+      fprintf(stderr, "head: read error on '%s'\n", name);
+      status = 1;
+    }
+
+    if (fp != stdin)
+      fclose(fp);
+  }
+
+  return status;
 }

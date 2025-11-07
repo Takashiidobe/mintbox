@@ -1,9 +1,8 @@
 #include <stdio.h>
-#include <unistd.h>
 
-int putchar(int c) {
+int fputc(int c, FILE *f) {
   unsigned char ch = c;
-  if (write(1, &ch, 1) != 1)
+  if (fwrite(&ch, 1, 1, f) != 1)
     return EOF;
   return ch;
 }

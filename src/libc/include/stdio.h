@@ -37,5 +37,7 @@ int sscanf(const char *str, const char *format, ...);
 ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 int fcloseall(void);
 int ferror(FILE *f);
+int fputc(int c, FILE *f);
+char *fgets(char *s, int n, FILE *fp);
 
 #endif /* LIBC_STDIO_H */
