@@ -3,10 +3,12 @@
         .globl  _start
         .type   _start,@function
         .globl  ___libc_start_main
+        .globl  _acc_main
         .globl  _base
 
 _start:
         subl    %a6, %a6                | clear a6 (helps some debuggers)
+        moveq   #0, %d7                 | assume program
 
         | ---- Detect ACC vs PRG ----
         | a0 != 0 and a0@(36) == 0  => ACC
@@ -19,6 +21,7 @@ _start:
         | ---- Accessory entry ----
         | ACC basepage is in a0
         movel   %a0, %a5               | a5 := basepage
+        moveq   #1, %d7                | mark accessory
         bra     after_stack_setup
 
 start_prg:
@@ -46,6 +49,8 @@ bss_loop:
 bss_done:
 
         | ---- Enter C runtime ----
+        tstb    %d7
+        bnes    accessory_entry
         movel   %a5, -(%sp)
         jsr     ___libc_start_main
         addql   #4, %sp
@@ -54,6 +59,9 @@ bss_done:
         movew   %d0, -(%sp)            | status (low 16 bits)
         movew   #0x4c, -(%sp)
         trap    #1                     | does not return
+
+accessory_entry:
+        jsr     _acc_main
 
 hang:
         bra     hang                 | safety if trap returns

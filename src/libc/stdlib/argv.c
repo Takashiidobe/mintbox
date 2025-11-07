@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include <mint/basepage.h>
 
@@ -11,6 +12,8 @@ int __libc_argc = 1;
 char **__libc_argv = default_argv;
 char **environ = NULL;
 BASEPAGE *_base asm("_base");
+
+static int is_space(char ch) { return ch == ' ' || ch == '\t'; }
 
 static uint8_t *align4(uint8_t *ptr) {
   uintptr_t value = (uintptr_t)ptr;
@@ -66,17 +69,41 @@ static void init_args(char *cmdline, uint8_t **arena) {
 
   char *cursor = cmdline;
   while (*cursor) {
-    while (*cursor == ' ' || *cursor == '\t')
+    while (*cursor && is_space(*cursor))
       ++cursor;
     if (!*cursor)
       break;
 
     argv[argc++] = cursor;
+    char *dst = cursor;
+    int in_single = 0;
+    int in_double = 0;
 
-    while (*cursor && *cursor != ' ' && *cursor != '\t')
+    while (*cursor) {
+      char ch = *cursor++;
+      if (ch == '"' && !in_single) {
+        in_double ^= 1;
+        continue;
+      }
+      if (ch == '\'' && !in_double) {
+        if (in_single && *cursor == '\'') {
+          *dst++ = '\'';
+          ++cursor;
+        } else {
+          in_single ^= 1;
+        }
+        continue;
+      }
+      if (!in_single && !in_double && is_space(ch)) {
+        break;
+      }
+      *dst++ = ch;
+    }
+
+    *dst = '\0';
+
+    while (*cursor && is_space(*cursor))
       ++cursor;
-    if (*cursor)
-      *cursor++ = '\0';
   }
 
   argv[argc] = NULL;
@@ -93,4 +120,9 @@ int __libc_start_main(BASEPAGE *bp) {
   init_args(cmdline, &arena);
 
   return main(__libc_argc, __libc_argv, environ);
+}
+
+__attribute__((noreturn)) void acc_main(void) {
+  int status = __libc_start_main(_base);
+  exit(status);
 }
