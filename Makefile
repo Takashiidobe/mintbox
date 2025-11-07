@@ -8,7 +8,7 @@ COMMON_CFLAGS := -m68040 -Os -Wall -Werror -ffreestanding -fno-builtin -fno-stac
                  -fno-pic 
 
 
-COMMON_LDFLAGS := -nostdlib -Wl,--gc-sections # -Wl,-T,src/libc/mint.aout.ld
+COMMON_LDFLAGS := -nostdlib -Wl,--gc-sections 
 
 CFLAGS ?= -Os -Wall -Werror
 CPPFLAGS ?=
