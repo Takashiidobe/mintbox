@@ -16,5 +16,6 @@ char *strstr(const char *haystack, const char *needle);
 char *strerror(int errnum);
 int strcmp(const char *s1, const char *s2);
 int strncmp(const char *s1, const char *s2, size_t n);
+void swab(const void *src, void *dst, ssize_t n);
 
 #endif /* LIBC_STRING_H */
