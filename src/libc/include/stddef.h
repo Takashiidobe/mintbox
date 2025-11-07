@@ -6,6 +6,11 @@
 typedef unsigned long size_t;
 #endif
 
+#ifndef __LIBC_SSIZE_T_DEFINED
+#define __LIBC_SSIZE_T_DEFINED
+typedef long ssize_t;
+#endif
+
 #ifndef NULL
 #define NULL ((void *)0)
 #endif

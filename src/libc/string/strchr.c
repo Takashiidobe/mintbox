@@ -1,7 +1,7 @@
 #include <stddef.h>
 
 char *strchr(const char *s, int c) {
-  char ch = (char)c;
+  char ch = c;
 
   while (*s) {
     if (*s == ch) {

@@ -46,5 +46,6 @@ typedef void (*__sighandler_t)(int);
 #define SIG_ERR ((__sighandler_t) - 1)
 
 __sighandler_t signal(int sig, __sighandler_t handler);
+int raise(int sig);
 
 #endif /* LIBC_SIGNAL_H */

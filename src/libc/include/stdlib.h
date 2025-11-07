@@ -21,5 +21,7 @@ int putenv(char *);
 int clearenv(void);
 int setenv(const char *name, const char *value, int overwrite);
 int unsetenv(const char *name);
+int getpid(void);
+int kill(int pid, int sig);
 
 #endif /* LIBC_STDLIB_H */
