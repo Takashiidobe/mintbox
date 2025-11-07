@@ -2,7 +2,13 @@ COMPILER ?= m68k-atari-mint-gcc
 AR ?= m68k-atari-mint-ar
 RANLIB ?= m68k-atari-mint-ranlib
 
-MAKEFLAGS+="-j $(shell nproc)"
+#MAKEFLAGS += -j $(shell nproc)
+
+COMMON_CFLAGS := -Os -Wall -Werror -ffreestanding -fno-builtin -fno-stack-protector \
+                 -fno-pic 
+
+
+COMMON_LDFLAGS := -nostdlib -Wl,--gc-sections -Wl,-Map,$@.map # -Wl,-T,src/libc/mint.aout.ld
 
 CFLAGS ?= -Os -Wall -Werror
 CPPFLAGS ?=
@@ -20,6 +26,8 @@ LIBC_OBJS_DIR := $(LIBC_BUILD_DIR)/objs
 LIBC_INCLUDE_DIR := $(LIBC_BUILD_DIR)/include
 LIBC_LIBRARY := $(LIBC_BUILD_DIR)/libcbox.a
 LIBC_CRT0 := $(LIBC_OBJS_DIR)/crt0.o
+
+INCFLAGS := -nostdinc -isystem $(LIBC_INCLUDE_DIR) -isystem $(LIBC_INCLUDE_SRC_DIR)
 
 LIBC_EXCLUDE := 
 LIBC_C_SOURCES := $(filter-out $(addprefix $(LIBC_SRC_DIR)/,$(LIBC_EXCLUDE)),$(call rwildcard,$(LIBC_SRC_DIR)/,*.c))
@@ -57,27 +65,37 @@ $(LIBC_LIBRARY): $(LIBC_OBJECTS) | $(LIBC_BUILD_DIR)
 	$(RANLIB) $@
 
 $(LIBC_CRT0): $(LIBC_SRC_DIR)/crt0.S | $(LIBC_OBJS_DIR)
-	$(COMPILER) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	$(COMPILER) $(CPUFLAGS) $(CPPFLAGS) $(INCFLAGS) $(COMMON_CFLAGS) -c $< -o $@
 
 $(LIBC_OBJS_DIR)/%.o: $(LIBC_SRC_DIR)/%.c | $(LIBC_OBJS_DIR)
 	mkdir -p $(dir $@)
-	$(COMPILER) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	$(COMPILER) $(CPUFLAGS) $(CPPFLAGS) $(INCFLAGS) $(COMMON_CFLAGS) -c $< -o $@
 
 $(LIBC_OBJS_DIR)/%.o: $(LIBC_SRC_DIR)/%.S | $(LIBC_OBJS_DIR)
 	mkdir -p $(dir $@)
-	$(COMPILER) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	$(COMPILER) $(CPUFLAGS) $(CPPFLAGS) $(INCFLAGS) $(COMMON_CFLAGS) -c $< -o $@
 
 $(LIBC_INCLUDE_DIR)/%.h: $(LIBC_INCLUDE_SRC_DIR)/%.h | $(LIBC_INCLUDE_DIR)
 	mkdir -p $(dir $@)
 	cp $< $@
 
-$(OUT_BOX_DIR)/%: $(BOX_SRC_DIR)/%.c $(LIBC_LIBRARY) $(LIBC_CRT0) | $(OUT_BOX_DIR)
-	$(COMPILER) -nostdlib $(CPPFLAGS) $(INCLUDES) -I"$(LIBC)" "$(LIBC_CRT0)" $< \
-		-L"$(LIBC)" -lgcc -lcbox -lgcc $(CFLAGS) -o $@
+$(OUT_BOX_DIR)/%.o: $(BOX_SRC_DIR)/%.c | $(OUT_BOX_DIR)
+	$(COMPILER) $(CPUFLAGS) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(OUT_TESTS_DIR)/%: $(TESTS_SRC_DIR)/%.c $(LIBC_LIBRARY) $(LIBC_CRT0) | $(OUT_TESTS_DIR)
-	$(COMPILER) -nostdlib $(CPPFLAGS) $(INCLUDES) -I"$(LIBC)" "$(LIBC_CRT0)" $< \
-		-L"$(LIBC)" -lgcc -lcbox -lgcc $(CFLAGS) -o $@
+$(OUT_BOX_DIR)/%: $(LIBC_CRT0) $(OUT_BOX_DIR)/%.o $(LIBC_LIBRARY) | $(OUT_BOX_DIR)
+	$(COMPILER) $(CPUFLAGS) $(COMMON_LDFLAGS) \
+	    "$(LIBC_CRT0)" $(OUT_BOX_DIR)/$*.o \
+	    -Wl,--start-group -L"$(LIBC)" -lcbox -lgcc -Wl,--end-group \
+	    -o $@
+
+$(OUT_TESTS_DIR)/%.o: $(TESTS_SRC_DIR)/%.c | $(OUT_TESTS_DIR)
+	$(COMPILER) $(CPUFLAGS) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+$(OUT_TESTS_DIR)/%: $(LIBC_CRT0) $(OUT_TESTS_DIR)/%.o $(LIBC_LIBRARY) | $(OUT_TESTS_DIR)
+	$(COMPILER) $(CPUFLAGS) $(COMMON_LDFLAGS) \ 
+	    "$(LIBC_CRT0)" $(OUT_TESTS_DIR)/$*.o \
+	    -Wl,--start-group -L"$(LIBC)" -lcbox -lgcc -Wl,--end-group \
+	    -o $@
 
 $(LIBC_BUILD_DIR) $(LIBC_OBJS_DIR) $(LIBC_INCLUDE_DIR) $(OUT_BOX_DIR) $(OUT_TESTS_DIR):
 	mkdir -p $@

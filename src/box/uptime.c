@@ -1,3 +1,5 @@
+int main(void) { return -1; }
+/*
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/param.h>
@@ -104,3 +106,4 @@ int main(void) {
 
   return EXIT_SUCCESS;
 }
+*/

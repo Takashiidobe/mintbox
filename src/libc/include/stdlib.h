@@ -6,7 +6,7 @@
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
 
-int atexit(void (*func)(void));
+int atexit(void (*fn)(void));
 int atoi(const char *s);
 void *malloc(size_t size);
 void free(void *ptr);
