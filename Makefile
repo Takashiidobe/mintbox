@@ -2,13 +2,13 @@ COMPILER ?= m68k-atari-mint-gcc
 AR ?= m68k-atari-mint-ar
 RANLIB ?= m68k-atari-mint-ranlib
 
-#MAKEFLAGS += -j $(shell nproc)
+MAKEFLAGS += -j $(shell nproc)
 
 COMMON_CFLAGS := -Os -Wall -Werror -ffreestanding -fno-builtin -fno-stack-protector \
                  -fno-pic 
 
 
-COMMON_LDFLAGS := -nostdlib -Wl,--gc-sections -Wl,-Map,$@.map # -Wl,-T,src/libc/mint.aout.ld
+COMMON_LDFLAGS := -nostdlib -Wl,--gc-sections # -Wl,-T,src/libc/mint.aout.ld
 
 CFLAGS ?= -Os -Wall -Werror
 CPPFLAGS ?=
@@ -86,15 +86,17 @@ $(OUT_BOX_DIR)/%: $(LIBC_CRT0) $(OUT_BOX_DIR)/%.o $(LIBC_LIBRARY) | $(OUT_BOX_DI
 	$(COMPILER) $(CPUFLAGS) $(COMMON_LDFLAGS) \
 	    "$(LIBC_CRT0)" $(OUT_BOX_DIR)/$*.o \
 	    -Wl,--start-group -L"$(LIBC)" -lcbox -lgcc -Wl,--end-group \
+	    -Wl,-Map,$@.map \
 	    -o $@
 
 $(OUT_TESTS_DIR)/%.o: $(TESTS_SRC_DIR)/%.c | $(OUT_TESTS_DIR)
 	$(COMPILER) $(CPUFLAGS) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(OUT_TESTS_DIR)/%: $(LIBC_CRT0) $(OUT_TESTS_DIR)/%.o $(LIBC_LIBRARY) | $(OUT_TESTS_DIR)
-	$(COMPILER) $(CPUFLAGS) $(COMMON_LDFLAGS) \ 
+	$(COMPILER) $(CPUFLAGS) $(COMMON_LDFLAGS) \
 	    "$(LIBC_CRT0)" $(OUT_TESTS_DIR)/$*.o \
 	    -Wl,--start-group -L"$(LIBC)" -lcbox -lgcc -Wl,--end-group \
+	    -Wl,-Map,$@.map \
 	    -o $@
 
 $(LIBC_BUILD_DIR) $(LIBC_OBJS_DIR) $(LIBC_INCLUDE_DIR) $(OUT_BOX_DIR) $(OUT_TESTS_DIR):

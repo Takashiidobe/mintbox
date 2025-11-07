@@ -1,52 +1,96 @@
-#include <ctype.h>
 #include <stddef.h>
+#include <stdint.h>
 
-#define CMDLINE_MAX 126
-#define MAX_ARGS 16
+#include <mint/basepage.h>
 
-static char argv_buffer[CMDLINE_MAX + 1];
-static char *argv_vector[MAX_ARGS + 1];
+extern int main(int argc, char **argv, char **envp);
 
-int __libc_argc = 0;
-char **__libc_argv = argv_vector;
+static char *default_argv[] = {"", NULL};
 
-void __libc_init_args(void *basepage) {
-  unsigned char *cmd = (unsigned char *)basepage + 0x80;
-  size_t len = cmd[0];
+int __libc_argc = 1;
+char **__libc_argv = default_argv;
+char **environ = NULL;
+BASEPAGE *_base asm("_base");
 
-  if (len > CMDLINE_MAX)
-    len = CMDLINE_MAX;
+static uint8_t *align4(uint8_t *ptr) {
+  uintptr_t value = (uintptr_t)ptr;
+  value = (value + 3U) & ~((uintptr_t)3U);
+  return (uint8_t *)value;
+}
 
-  size_t out = 0;
-  for (; out < len; ++out) {
-    char ch = (char)cmd[1 + out];
-    if (ch == '\r')
-      break;
-    argv_buffer[out] = ch;
+static void init_environ(const BASEPAGE *bp, uint8_t **arena) {
+  char **dst = (char **)*arena;
+  environ = dst;
+
+  char *entry = bp->p_env;
+  if (entry) {
+    while (*entry) {
+      *dst++ = entry;
+      while (*entry++)
+        ;
+    }
   }
-  argv_buffer[out] = '\0';
+
+  *dst++ = NULL;
+  *arena = align4((uint8_t *)dst);
+}
+
+static char *copy_command_line(const BASEPAGE *bp, uint8_t **arena) {
+  unsigned length = bp->p_cmdlin[0];
+  if (length > 126)
+    length = 126;
+
+  char *buffer = (char *)*arena;
+  for (unsigned i = 0; i < length; ++i) {
+    char ch = (char)bp->p_cmdlin[1 + i];
+    if (ch == '\r') {
+      length = i;
+      break;
+    }
+    buffer[i] = ch;
+  }
+
+  buffer[length++] = '\0';
+  buffer[length] = '\0';
+  *arena = align4((uint8_t *)(buffer + length + 1));
+
+  return buffer;
+}
+
+static void init_args(char *cmdline, uint8_t **arena) {
+  char **argv = (char **)*arena;
+  __libc_argv = argv;
 
   int argc = 0;
-  argv_vector[argc++] = "";
+  argv[argc++] = "";
 
-  char *cursor = argv_buffer;
-  while (*cursor && argc < MAX_ARGS) {
-    while (*cursor && isspace((unsigned char)*cursor))
+  char *cursor = cmdline;
+  while (*cursor) {
+    while (*cursor == ' ' || *cursor == '\t')
       ++cursor;
     if (!*cursor)
       break;
 
-    argv_vector[argc++] = cursor;
+    argv[argc++] = cursor;
 
-    while (*cursor && !isspace((unsigned char)*cursor))
+    while (*cursor && *cursor != ' ' && *cursor != '\t')
       ++cursor;
-    if (!*cursor)
-      break;
-
-    *cursor++ = '\0';
+    if (*cursor)
+      *cursor++ = '\0';
   }
 
-  argv_vector[argc] = NULL;
+  argv[argc] = NULL;
   __libc_argc = argc;
-  __libc_argv = argv_vector;
+  *arena = align4((uint8_t *)(argv + argc + 1));
+}
+
+int __libc_start_main(BASEPAGE *bp) {
+  _base = bp;
+
+  uint8_t *arena = align4((uint8_t *)bp->p_bbase + bp->p_blen);
+  init_environ(bp, &arena);
+  char *cmdline = copy_command_line(bp, &arena);
+  init_args(cmdline, &arena);
+
+  return main(__libc_argc, __libc_argv, environ);
 }

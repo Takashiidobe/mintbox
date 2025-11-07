@@ -2,9 +2,8 @@
         .even
         .globl  _start
         .type   _start,@function
-        .globl  ___libc_init_args
-        .globl  ___libc_argc
-        .globl  ___libc_argv
+        .globl  ___libc_start_main
+        .globl  _base
 
 _start:
         subl    %a6, %a6                | clear a6 (helps some debuggers)
@@ -20,22 +19,24 @@ _start:
         | ---- Accessory entry ----
         | ACC basepage is in a0
         movel   %a0, %a5               | a5 := basepage
-        lea     %a0@(252), %sp         | temporary stack (command line area)
-        bra     after_stack
+        bra     after_stack_setup
 
 start_prg:
         | ---- Program entry ----
         | For PRGs, basepage is at sp@(4)
         movel   %sp@(4), %a5           | a5 := basepage
-        | Set stack from p_hitpa (basepage+4), clear bit 0, -64 bytes
+
+after_stack_setup:
+        | ---- Set stack from p_hitpa (basepage+4) ----
         movel   %a5@(4), %d0           | d0 := p_hitpa
         bclr    #0, %d0                | word-align (round down)
         movel   %d0, %sp
         subl    #64, %sp               | small scratch, per mintlib convention
+        movel   %a5, _base
 
 after_stack:
         | ---- Zero BSS: [_edata, _end) ----
-				lea     _edata, %a0
+        lea     _edata, %a0
         lea     _end,   %a1
 bss_loop:
         cmpa.l  %a1, %a0
@@ -44,24 +45,10 @@ bss_loop:
         bra     bss_loop
 bss_done:
 
-        | ---- Publish environ from basepage->p_env (offset 0x2C) ----
-        movel   %a5@(44), %a1          | a1 := envp (p_env)
-        lea     environ, %a2
-        movel   %a1, (%a2)
-
-        | ---- Parse command line into argc/argv ----
+        | ---- Enter C runtime ----
         movel   %a5, -(%sp)
-        jsr     ___libc_init_args
+        jsr     ___libc_start_main
         addql   #4, %sp
-        movel   ___libc_argc, %d0
-        movel   ___libc_argv, %a0
-
-        | ---- Call _main(argc, argv, envp) ----
-        movel   %a1, -(%sp)            | envp
-        movel   %a0, -(%sp)            | argv
-        movel   %d0, -(%sp)            | argc
-        jsr     _main
-        add.l  #12, %sp                | pop args
 
         | ---- Exit via GEMDOS Pterm (0x4C), status on stack ----
         movew   %d0, -(%sp)            | status (low 16 bits)
@@ -72,12 +59,3 @@ hang:
         bra     hang                 | safety if trap returns
 
         .size   _start,.-_start
-
-        .data
-        .align  2
-        .globl  environ
-environ:
-        .long   0
-
-        .bss
-        .align  2
