@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+typedef unsigned long __mode_t;
+
 #ifndef __LIBC_OFF_T_DEFINED
 #define __LIBC_OFF_T_DEFINED
 typedef long off_t;
@@ -34,6 +36,11 @@ typedef long ssize_t;
 #define __LIBC_TIME_T_DEFINED
 typedef long time_t;
 typedef time_t __time_t;
+#endif
+
+#ifndef __MODE_T_DEFINED
+#define __MODE_T_DEFINED
+typedef __mode_t mode_t;
 #endif
 
 #ifndef __LIBC_SUSECONDS_T_DEFINED

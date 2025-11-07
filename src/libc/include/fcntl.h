@@ -2,6 +2,7 @@
 #define LIBC_FCNTL_H
 
 #include <stdint.h>
+#include <sys/types.h>
 
 #define O_RDONLY 0
 #define O_WRONLY 1
@@ -18,5 +19,6 @@
 #define O_SYNC 0x2000
 
 int open(const char *path, int flags, ...);
+int creat(const char *path, mode_t mode);
 
 #endif /* LIBC_FCNTL_H */

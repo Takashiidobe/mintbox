@@ -3,7 +3,7 @@ COMPILER ?= $(COMPILER_PREFIX)-gcc
 AR ?= $(COMPILER_PREFIX)-ar
 RANLIB ?= $(COMPILER_PREFIX)-ranlib
 
-# MAKEFLAGS += -j $(shell nproc)
+MAKEFLAGS += -j $(shell nproc)
 
 COMMON_CFLAGS := -m68040 -Os -Wall -Werror -ffreestanding -fno-builtin -fno-stack-protector \
                  -fno-pic 
