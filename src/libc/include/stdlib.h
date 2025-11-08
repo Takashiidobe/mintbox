@@ -25,5 +25,6 @@ int getpid(void);
 int kill(int pid, int sig);
 
 void *memalign(size_t align, size_t len);
+void abort(void);
 
 #endif /* LIBC_STDLIB_H */
