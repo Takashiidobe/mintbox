@@ -34,11 +34,14 @@ int mkdir(const char *path, mode_t mode);
 int rmdir(const char *path);
 int chdir(const char *path);
 char *getcwd(char *buf, size_t size);
+pid_t getppid(void);
 int access(const char *path, int mode);
 uid_t getuid(void);
 uid_t geteuid(void);
 gid_t getgid(void);
 gid_t getegid(void);
 int getgroups(int gidsetsize, gid_t grouplist[]);
+pid_t fork(void);
+int execve(const char *path, char *const argv[], char *const envp[]);
 
 #endif /* LIBC_UNISTD_H */

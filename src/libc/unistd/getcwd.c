@@ -20,7 +20,7 @@ char *getcwd(char *buf, size_t size) {
     }
   }
 
-  int16_t len = (size > (size_t)INT16_MAX) ? INT16_MAX : (int16_t)size;
+  int16_t len = (size > (size_t)INT_MAX + 1) ? INT_MAX : (int16_t)size;
   int32_t ret = Dgetcwd((int8_t *)out, 0, len);
   if (ret < 0) {
     int saved = (int)-ret;
