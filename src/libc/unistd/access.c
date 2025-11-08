@@ -1,28 +1,10 @@
 #include <errno.h>
 #include <mint/mintbind.h>
+#include <mint/xattr.h>
 #include <stdint.h>
 #include <sys/param.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-struct mint_xattr {
-  unsigned short st_mode;
-  long st_ino;
-  unsigned short st_dev;
-  short st_rdev;
-  unsigned short st_nlink;
-  unsigned short st_uid;
-  unsigned short st_gid;
-  long st_size;
-  long st_blksize;
-  long st_blocks;
-  unsigned long st_mtime;
-  unsigned long st_atime;
-  unsigned long st_ctime;
-  short st_attr;
-  short res1;
-  long res2[2];
-};
 
 static unsigned int mode_mask(int mode) {
   unsigned int mask = 0;
@@ -41,8 +23,8 @@ int access(const char *path, int mode) {
     return -1;
   }
 
-  struct mint_xattr attr;
-  int32_t ret = Fxattr(0, (char *)path, (XATTR *)&attr);
+  XATTR attr;
+  int32_t ret = Fxattr(0, (char *)path, &attr);
   if (ret < 0) {
     errno = (int)-ret;
     return -1;

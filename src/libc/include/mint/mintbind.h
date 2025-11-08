@@ -1,6 +1,8 @@
 #ifndef MINT_MINTBIND_H
 #define MINT_MINTBIND_H
 
+#include <mint/xattr.h>
+
 static inline long trap_1_w(short n) {
   register long retval __asm__("d0");
 
@@ -1075,7 +1077,6 @@ static inline int32_t Crawio(int16_t w) { return (int32_t)trap_1_ww(0x06, w); }
 
 /* Forward declarations for GEMDOS structures provided elsewhere. */
 typedef struct DISKINFO DISKINFO;
-typedef struct XATTR XATTR;
 
 // Dchroot - Change the root directory for the calling process.
 static inline int32_t Dchroot(const char *path) {
@@ -1189,7 +1190,6 @@ static inline int32_t Dxreaddir(int16_t ln, int32_t dirh, int8_t *buf,
 typedef struct DOSTIME DOSTIME;
 typedef struct DTA DTA;
 typedef struct STAT STAT;
-typedef struct XATTR XATTR;
 typedef struct POLLFD POLLFD;
 
 /* Fattrib - Obtain or change file attributes. */

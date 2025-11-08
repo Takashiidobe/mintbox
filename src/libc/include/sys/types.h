@@ -22,6 +22,11 @@ typedef int uid_t;
 typedef int gid_t;
 #endif
 
+#ifndef __LIBC_KEY_T_DEFINED
+#define __LIBC_KEY_T_DEFINED
+typedef int key_t;
+#endif
+
 #ifndef __LIBC_SIZE_T_DEFINED
 #define __LIBC_SIZE_T_DEFINED
 typedef unsigned long size_t;
@@ -50,5 +55,20 @@ typedef suseconds_t __suseconds_t;
 #endif
 
 typedef long clock_t;
+
+#ifndef __LIBC_MSGQNUM_T_DEFINED
+#define __LIBC_MSGQNUM_T_DEFINED
+typedef unsigned long msgqnum_t;
+#endif
+
+#ifndef __LIBC_MSGLEN_T_DEFINED
+#define __LIBC_MSGLEN_T_DEFINED
+typedef unsigned long msglen_t;
+#endif
+
+#ifndef __LIBC_SHMATT_T_DEFINED
+#define __LIBC_SHMATT_T_DEFINED
+typedef unsigned short shmatt_t;
+#endif
 
 #endif /* LIBC_SYS_TYPES_H */
