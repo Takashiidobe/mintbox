@@ -6,6 +6,31 @@
 
 typedef unsigned long __mode_t;
 
+#ifndef __LIBC_DEV_T_DEFINED
+#define __LIBC_DEV_T_DEFINED
+typedef unsigned long dev_t;
+#endif
+
+#ifndef __LIBC_INO_T_DEFINED
+#define __LIBC_INO_T_DEFINED
+typedef unsigned long ino_t;
+#endif
+
+#ifndef __LIBC_NLINK_T_DEFINED
+#define __LIBC_NLINK_T_DEFINED
+typedef unsigned long nlink_t;
+#endif
+
+#ifndef __LIBC_BLKSIZE_T_DEFINED
+#define __LIBC_BLKSIZE_T_DEFINED
+typedef long blksize_t;
+#endif
+
+#ifndef __LIBC_BLKCNT_T_DEFINED
+#define __LIBC_BLKCNT_T_DEFINED
+typedef long blkcnt_t;
+#endif
+
 #ifndef __LIBC_OFF_T_DEFINED
 #define __LIBC_OFF_T_DEFINED
 typedef long off_t;
