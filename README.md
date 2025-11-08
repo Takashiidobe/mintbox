@@ -1,6 +1,6 @@
 # Mintbox
 
-Minimalistic CLI utilities for Atari Mint.
+Yet another libc for Atari Mint.
 
 ## Credits
 

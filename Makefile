@@ -8,7 +8,6 @@ MAKEFLAGS += -j $(shell nproc)
 COMMON_CFLAGS := -std=c23 -m68040 -Os -Wall -Werror -ffreestanding -fno-builtin -fno-stack-protector \
                  -fno-pic 
 
-
 COMMON_LDFLAGS := -nostdlib -Wl,--gc-sections 
 
 CFLAGS ?= -Os -Wall -Werror
@@ -16,8 +15,6 @@ CPPFLAGS ?=
 
 LIBC_SRC_DIR := src/libc
 LIBC_INCLUDE_SRC_DIR := $(LIBC_SRC_DIR)/include
-
-BOX_SRC_DIR := src/box
 
 rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 
@@ -40,10 +37,6 @@ LIBC_OBJECTS := \
 LIBC_HEADERS := $(call rwildcard,$(LIBC_INCLUDE_SRC_DIR)/,*.h)
 LIBC_INSTALLED_HEADERS := $(patsubst $(LIBC_INCLUDE_SRC_DIR)/%,$(LIBC_INCLUDE_DIR)/%,$(LIBC_HEADERS))
 
-BOX_SOURCES := $(wildcard $(BOX_SRC_DIR)/*.c)
-OUT_BOX_DIR := out/box
-BOX_PROGRAMS := $(patsubst $(BOX_SRC_DIR)/%.c,$(OUT_BOX_DIR)/%,$(BOX_SOURCES))
-
 TESTS_SRC_DIR := src/tests
 TESTS_SOURCES := $(wildcard $(TESTS_SRC_DIR)/*.c)
 OUT_TESTS_DIR := out/tests
@@ -51,13 +44,11 @@ TEST_PROGRAMS := $(patsubst $(TESTS_SRC_DIR)/%.c,$(OUT_TESTS_DIR)/%,$(TESTS_SOUR
 
 INCLUDES := -I"$(LIBC_INCLUDE_DIR)" -I"$(LIBC_INCLUDE_SRC_DIR)"
 
-.PHONY: all libc box tests clean
+.PHONY: all libc tests clean
 
-all: libc box tests
+all: libc tests
 
 libc: $(LIBC_INSTALLED_HEADERS) $(LIBC_LIBRARY) $(LIBC_CRT0)
-
-box: $(BOX_PROGRAMS)
 
 tests: $(TEST_PROGRAMS)
 
@@ -80,16 +71,6 @@ $(LIBC_INCLUDE_DIR)/%.h: $(LIBC_INCLUDE_SRC_DIR)/%.h | $(LIBC_INCLUDE_DIR)
 	mkdir -p $(dir $@)
 	cp $< $@
 
-$(OUT_BOX_DIR)/%.o: $(BOX_SRC_DIR)/%.c | $(OUT_BOX_DIR)
-	$(COMPILER) $(CPUFLAGS) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
-
-$(OUT_BOX_DIR)/%: $(LIBC_CRT0) $(OUT_BOX_DIR)/%.o $(LIBC_LIBRARY) | $(OUT_BOX_DIR)
-	$(COMPILER) $(CPUFLAGS) $(COMMON_LDFLAGS) \
-	    "$(LIBC_CRT0)" $(OUT_BOX_DIR)/$*.o \
-	    -Wl,--start-group -L"$(LIBC)" -lcbox -lgcc -Wl,--end-group \
-	    -Wl,-Map,$@.map \
-	    -o $@
-
 $(OUT_TESTS_DIR)/%.o: $(TESTS_SRC_DIR)/%.c | $(OUT_TESTS_DIR)
 	$(COMPILER) $(CPUFLAGS) $(CPPFLAGS) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
@@ -100,8 +81,8 @@ $(OUT_TESTS_DIR)/%: $(LIBC_CRT0) $(OUT_TESTS_DIR)/%.o $(LIBC_LIBRARY) | $(OUT_TE
 	    -Wl,-Map,$@.map \
 	    -o $@
 
-$(LIBC_BUILD_DIR) $(LIBC_OBJS_DIR) $(LIBC_INCLUDE_DIR) $(OUT_BOX_DIR) $(OUT_TESTS_DIR):
+$(LIBC_BUILD_DIR) $(LIBC_OBJS_DIR) $(LIBC_INCLUDE_DIR) $(OUT_TESTS_DIR):
 	mkdir -p $@
 
 clean:
-	rm -rf $(OUT_BOX_DIR) $(OUT_TESTS_DIR) $(LIBC_BUILD_DIR)
+	rm -rf $(OUT_TESTS_DIR) $(LIBC_BUILD_DIR)
