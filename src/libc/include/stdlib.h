@@ -24,4 +24,6 @@ int unsetenv(const char *name);
 int getpid(void);
 int kill(int pid, int sig);
 
+void *memalign(size_t align, size_t len);
+
 #endif /* LIBC_STDLIB_H */

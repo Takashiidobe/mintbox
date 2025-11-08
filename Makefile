@@ -5,7 +5,7 @@ RANLIB ?= $(COMPILER_PREFIX)-ranlib
 
 MAKEFLAGS += -j $(shell nproc)
 
-COMMON_CFLAGS := -m68040 -Os -Wall -Werror -ffreestanding -fno-builtin -fno-stack-protector \
+COMMON_CFLAGS := -std=c23 -m68040 -Os -Wall -Werror -ffreestanding -fno-builtin -fno-stack-protector \
                  -fno-pic 
 
 
