@@ -38,6 +38,7 @@ void *calloc(size_t count, size_t size);
 __attribute__((__noreturn__)) void exit(int status);
 char *utoa(char *dst, long value);
 char *itoa(char *dst, long value);
+char *mktemp(char *template);
 
 char *getenv(const char *name);
 int putenv(char *);
