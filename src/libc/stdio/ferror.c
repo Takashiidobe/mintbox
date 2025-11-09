@@ -1,7 +1,8 @@
-#include "../stdio/internal.h"
+#include "./internal.h"
 #include <stdio.h>
 
 int ferror(FILE *f) {
-  int ret = !!(f->flags);
-  return ret;
+  if (!f)
+    return 1;
+  return (f->state & FILE_STATE_ERR) != 0;
 }

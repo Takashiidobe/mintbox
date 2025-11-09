@@ -10,7 +10,11 @@ static int fflush_single(FILE *stream) {
     return 0;
 
   long ret = Fflush((short)stream->handle);
-  return ret < 0 ? EOF : 0;
+  if (ret < 0) {
+    __stdio_set_error(stream);
+    return EOF;
+  }
+  return 0;
 }
 
 int fflush(FILE *stream) {

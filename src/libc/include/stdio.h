@@ -40,5 +40,10 @@ int ferror(FILE *f);
 int fputc(int c, FILE *f);
 char *fgets(char *s, int n, FILE *fp);
 int fileno(FILE *stream);
+int fseek(FILE *stream, long offset, int whence);
+long ftell(FILE *stream);
+void rewind(FILE *stream);
+int feof(FILE *stream);
+void clearerr(FILE *stream);
 
 #endif /* LIBC_STDIO_H */

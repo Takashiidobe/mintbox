@@ -1,11 +1,11 @@
 #include "./internal.h"
 
 static struct __file __stdin_file = {0, FILE_FLAG_INUSE | FILE_FLAG_STATIC, 0,
-                                     0};
+                                     0, 0};
 static struct __file __stdout_file = {1, FILE_FLAG_INUSE | FILE_FLAG_STATIC, 0,
-                                      0};
+                                      0, 0};
 static struct __file __stderr_file = {2, FILE_FLAG_INUSE | FILE_FLAG_STATIC, 0,
-                                      0};
+                                      0, 0};
 
 FILE *stdin = &__stdin_file;
 FILE *stdout = &__stdout_file;
@@ -19,6 +19,7 @@ FILE *__stdio_alloc_file(void) {
     if (!(__file_pool[i].flags & FILE_FLAG_INUSE)) {
       __file_pool[i].flags = FILE_FLAG_INUSE;
       __file_pool[i].handle = -1;
+      __file_pool[i].state = 0;
       __file_pool[i].has_ungetc = 0;
       __file_pool[i].ungetc_value = 0;
       return &__file_pool[i];
@@ -32,6 +33,7 @@ void __stdio_release_file(FILE *file) {
     return;
   file->flags = 0;
   file->handle = -1;
+  file->state = 0;
   file->has_ungetc = 0;
   file->ungetc_value = 0;
 }
