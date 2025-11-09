@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <stdbool.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -36,6 +37,22 @@ static size_t format_signed(long value, char *buf) {
   return idx;
 }
 
+static size_t format_hex(unsigned long value, bool uppercase, char *buf) {
+  const char *digits = uppercase ? "0123456789ABCDEF" : "0123456789abcdef";
+  char tmp[32];
+  size_t len = 0;
+
+  do {
+    tmp[len++] = digits[value & 0xF];
+    value >>= 4;
+  } while (value != 0);
+
+  for (size_t i = 0; i < len; i++) {
+    buf[i] = tmp[len - 1 - i];
+  }
+  return len;
+}
+
 static void append_buffer(char c, char *dest, size_t size, size_t *stored,
                           size_t *total) {
   if (*total < SIZE_MAX) {
@@ -56,6 +73,33 @@ static void append_string(const char *src, size_t len, char *dest, size_t size,
   for (size_t i = 0; i < len; i++) {
     append_buffer(src[i], dest, size, stored, total);
   }
+}
+
+static void append_padded(const char *src, size_t len, bool zero_pad, int width,
+                          char *dest, size_t size, size_t *stored,
+                          size_t *total) {
+  if (width < 0) {
+    append_string(src, len, dest, size, stored, total);
+    return;
+  }
+
+  size_t pad = 0;
+  if ((size_t)width > len) {
+    pad = (size_t)width - len;
+  }
+
+  const char pad_char = zero_pad ? '0' : ' ';
+  if (zero_pad && len > 0 && src[0] == '-') {
+    append_buffer('-', dest, size, stored, total);
+    src++;
+    len--;
+  }
+
+  while (pad-- > 0) {
+    append_buffer(pad_char, dest, size, stored, total);
+  }
+
+  append_string(src, len, dest, size, stored, total);
 }
 
 int vsnprintf(char *str, size_t size, const char *format, va_list ap) {
@@ -81,15 +125,26 @@ int vsnprintf(char *str, size_t size, const char *format, va_list ap) {
       continue;
     }
 
-    /* Parse flags we don't support but must skip. */
-    while (*format == '-' || *format == '+' || *format == ' ' ||
-           *format == '#' || *format == '0') {
-      format++;
+    bool zero_pad = false;
+    while (1) {
+      if (*format == '0') {
+        zero_pad = true;
+        format++;
+      } else if (*format == '-' || *format == '+' || *format == ' ' ||
+                 *format == '#') {
+        format++;
+      } else {
+        break;
+      }
     }
 
-    /* Field width (ignored). */
+    int width = -1;
     while (*format >= '0' && *format <= '9') {
+      if (width < 0) {
+        width = 0;
+      }
       format++;
+      width = width * 10 + (*(format - 1) - '0');
     }
 
     int precision = -1;
@@ -129,7 +184,7 @@ int vsnprintf(char *str, size_t size, const char *format, va_list ap) {
       long value = (length == 'l') ? va_arg(ap, long) : va_arg(ap, int);
       char buf[32];
       size_t len = format_signed(value, buf);
-      append_string(buf, len, str, size, &stored, &total);
+      append_padded(buf, len, zero_pad, width, str, size, &stored, &total);
       break;
     }
     case 'u': {
@@ -138,7 +193,28 @@ int vsnprintf(char *str, size_t size, const char *format, va_list ap) {
                                 : (unsigned long)va_arg(ap, unsigned int);
       char buf[32];
       size_t len = format_unsigned(value, buf);
-      append_string(buf, len, str, size, &stored, &total);
+      append_padded(buf, len, zero_pad, width, str, size, &stored, &total);
+      break;
+    }
+    case 'x':
+    case 'X': {
+      unsigned long value = (length == 'l')
+                                ? va_arg(ap, unsigned long)
+                                : (unsigned long)va_arg(ap, unsigned int);
+      char buf[32];
+      size_t len = format_hex(value, spec == 'X', buf);
+      append_padded(buf, len, zero_pad, width, str, size, &stored, &total);
+      break;
+    }
+    case 'p': {
+      void *ptr = va_arg(ap, void *);
+      uintptr_t value = (uintptr_t)ptr;
+      char buf[2 + sizeof(uintptr_t) * 2];
+      size_t len = 0;
+      buf[len++] = '0';
+      buf[len++] = 'x';
+      len += format_hex((unsigned long)value, false, buf + len);
+      append_padded(buf, len, false, width, str, size, &stored, &total);
       break;
     }
     case 's': {
