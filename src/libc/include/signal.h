@@ -2,8 +2,13 @@
 #define LIBC_SIGNAL_H
 
 typedef void (*__sighandler_t)(int);
+typedef unsigned long sigset_t;
 
 #define __NSIG 32
+
+#define SIG_SETMASK 0
+#define SIG_BLOCK 1
+#define SIG_UNBLOCK 2
 
 #define SIGNULL 0
 #define SIGHUP 1
@@ -45,7 +50,22 @@ typedef void (*__sighandler_t)(int);
 #define SIG_IGN ((__sighandler_t)1)
 #define SIG_ERR ((__sighandler_t) - 1)
 
+struct sigaction {
+  __sighandler_t sa_handler;
+  sigset_t sa_mask;
+  int sa_flags;
+};
+
 __sighandler_t signal(int sig, __sighandler_t handler);
 int raise(int sig);
+int sigaction(int sig, const struct sigaction *act, struct sigaction *oldact);
+int sigemptyset(sigset_t *set);
+int sigfillset(sigset_t *set);
+int sigaddset(sigset_t *set, int sig);
+int sigdelset(sigset_t *set, int sig);
+int sigismember(const sigset_t *set, int sig);
+int sigprocmask(int how, const sigset_t *set, sigset_t *oldset);
+int sigpending(sigset_t *set);
+int sigsuspend(const sigset_t *mask);
 
 #endif /* LIBC_SIGNAL_H */
