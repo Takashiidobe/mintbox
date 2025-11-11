@@ -1,6 +1,7 @@
-#include <mint/mintbind.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <stdint.h>
+#include <mint/mintbind.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
@@ -11,7 +12,7 @@ static struct tchars __ioctl_tchars = {CINTR, CQUIT, CSTART, CSTOP, CEOF, CEOL};
 static struct ltchars __ioctl_ltchars = {CSUSP,   CDSUSP,  CRPRNT,
                                          CFLUSHO, CWERASE, CLNEXT};
 
-static int handle_fallback(int fd, unsigned long request, void *arg) {
+static int handle_tty_fallback(int fd, unsigned long request, void *arg) {
   if (!isatty(fd)) {
     errno = ENOTTY;
     return -1;
@@ -94,48 +95,61 @@ static int handle_fallback(int fd, unsigned long request, void *arg) {
   }
 }
 
+static int handle_misc_fallback(int fd, unsigned long request, void *arg) {
+  switch (request) {
+  case FIONBIO: {
+    if (!arg) {
+      errno = EINVAL;
+      return -1;
+    }
+    int flags = fcntl(fd, F_GETFL);
+    if (flags < 0)
+      return -1;
+
+    int enable = (*(int *)arg) ? 1 : 0;
+    int new_flags = enable ? (flags | O_NONBLOCK) : (flags & ~O_NONBLOCK);
+    if (new_flags == flags)
+      return 0;
+    if (fcntl(fd, F_SETFL, new_flags) < 0)
+      return -1;
+    return 0;
+  }
+  default:
+    errno = ENOSYS;
+    return -1;
+  }
+}
+
 int ioctl(int fd, int request, void *arg) {
   if (fd < 0) {
     errno = EBADF;
     return -1;
   }
 
-  unsigned long group = (request >> 8) & 0xFFu;
-  if (group == 'F' || group == 'T') {
-    /* Certain tty ioctls are not implemented by MiNT; emulate up front. */
-    switch (request) {
-    case TIOCGETD:
-    case TIOCSETD:
-    case TIOCLGET:
-    case TIOCLSET:
-    case TIOCLBIS:
-    case TIOCLBIC:
-    case TIOCGETC:
-    case TIOCSETC:
-    case TIOCGLTC:
-    case TIOCSLTC:
-      return handle_fallback(fd, request, arg);
-    default:
-      break;
-    }
+  unsigned long group = ((unsigned long)request >> 8) & 0xFFu;
 
-    int16_t cmd = (int16_t)request;
-    int32_t result = Fcntl((int16_t)fd, (int32_t)(intptr_t)arg, cmd);
-    if (result >= 0)
-      return (int)result;
+  int32_t result =
+      Fcntl((int16_t)fd, (int32_t)(intptr_t)arg, (int16_t)request);
+  if (result >= 0)
+    return (int)result;
 
-    if (result != -ENOSYS && result != -EINVAL) {
-      errno = (int)-result;
-      return -1;
-    }
-
-    int fallback = handle_fallback(fd, request, arg);
-    if (fallback == 0)
-      return 0;
-    if (errno != ENOSYS)
-      return -1;
+  if (result != ENOSYS && result != EINVAL) {
+    errno = (int)-result;
+    return -1;
   }
 
-  errno = ENOTTY;
+  if (handle_misc_fallback(fd, (unsigned long)request, arg) == 0)
+    return 0;
+  if (errno != ENOSYS)
+    return -1;
+
+  if (group == 'T') {
+    int tty_status = handle_tty_fallback(fd, (unsigned long)request, arg);
+    if (tty_status == 0)
+      return 0;
+    return -1;
+  }
+
+  errno = ENOSYS;
   return -1;
 }

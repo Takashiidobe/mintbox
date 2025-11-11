@@ -5,6 +5,106 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#ifndef _POSIX_VERSION
+#define _POSIX_VERSION 199009L
+#endif
+
+#ifndef __POSIX2_THIS_VERSION
+#define __POSIX2_THIS_VERSION 199209L
+#endif
+
+#ifndef _POSIX2_VERSION
+#define _POSIX2_VERSION __POSIX2_THIS_VERSION
+#endif
+
+#ifndef _POSIX2_C_VERSION
+#define _POSIX2_C_VERSION __POSIX2_THIS_VERSION
+#endif
+
+#ifndef _POSIX2_C_BIND
+#define _POSIX2_C_BIND __POSIX2_THIS_VERSION
+#endif
+
+#ifndef _POSIX2_C_DEV
+#define _POSIX2_C_DEV __POSIX2_THIS_VERSION
+#endif
+
+#ifndef _POSIX2_SW_DEV
+#define _POSIX2_SW_DEV __POSIX2_THIS_VERSION
+#endif
+
+#ifndef _POSIX2_LOCALEDEF
+#define _POSIX2_LOCALEDEF __POSIX2_THIS_VERSION
+#endif
+
+#ifndef _XOPEN_VERSION
+#define _XOPEN_VERSION 4
+#endif
+
+#ifndef _XOPEN_XCU_VERSION
+#define _XOPEN_XCU_VERSION 4
+#endif
+
+#ifndef _XOPEN_XPG2
+#define _XOPEN_XPG2 1
+#endif
+
+#ifndef _XOPEN_XPG3
+#define _XOPEN_XPG3 1
+#endif
+
+#ifndef _XOPEN_XPG4
+#define _XOPEN_XPG4 1
+#endif
+
+#ifndef _XOPEN_UNIX
+#define _XOPEN_UNIX 1
+#endif
+
+#ifndef _XOPEN_CRYPT
+#define _XOPEN_CRYPT 1
+#endif
+
+#ifndef _XOPEN_ENH_I18N
+#define _XOPEN_ENH_I18N 1
+#endif
+
+#ifndef _XOPEN_LEGACY
+#define _XOPEN_LEGACY 1
+#endif
+
+#ifndef _POSIX_JOB_CONTROL
+#define _POSIX_JOB_CONTROL 1
+#endif
+
+#ifndef _POSIX_SAVED_IDS
+#define _POSIX_SAVED_IDS 1
+#endif
+
+#ifndef _POSIX_SYNCHRONIZED_IO
+#define _POSIX_SYNCHRONIZED_IO 1
+#endif
+
+#ifndef _POSIX_FSYNC
+#define _POSIX_FSYNC 1
+#endif
+
+#ifndef _POSIX_SELECT
+#define _POSIX_SELECT 1
+#endif
+
+#ifndef _POSIX_CHOWN_RESTRICTED
+#define _POSIX_CHOWN_RESTRICTED 1
+#endif
+
+#ifndef _POSIX_VDISABLE
+#define _POSIX_VDISABLE '\0'
+#endif
+
+#ifndef _POSIX_NO_TRUNC
+#define _POSIX_NO_TRUNC 1
+#endif
+
 #define STDIN_FILENO 0
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2

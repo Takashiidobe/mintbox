@@ -4,13 +4,14 @@
 #include <sys/types.h>
 
 #define S_IFMT 0170000
-#define S_IFSOCK 0140000
-#define S_IFLNK 0120000
-#define S_IFREG 0100000
-#define S_IFBLK 0060000
-#define S_IFDIR 0040000
+#define S_IFSOCK 0010000
 #define S_IFCHR 0020000
-#define S_IFIFO 0010000
+#define S_IFDIR 0040000
+#define S_IFBLK 0060000
+#define S_IFREG 0100000
+#define S_IFIFO 0120000
+#define S_IFMEM 0140000
+#define S_IFLNK 0160000
 
 #define S_ISUID 0004000
 #define S_ISGID 0002000
@@ -36,6 +37,17 @@
 #define S_ISBLK(m) (((m)&S_IFMT) == S_IFBLK)
 #define S_ISFIFO(m) (((m)&S_IFMT) == S_IFIFO)
 #define S_ISSOCK(m) (((m)&S_IFMT) == S_IFSOCK)
+#define S_ISMEM(m) (((m)&S_IFMT) == S_IFMEM)
+
+#define S_TYPEISMQ(buf) (0)
+#define S_TYPEISSEM(buf) (0)
+#define S_TYPEISSHM(buf) (0)
+
+#define ACCESSPERMS (S_IRWXU | S_IRWXG | S_IRWXO)
+#define ALLPERMS (S_ISUID | S_ISGID | S_ISVTX | S_IRWXU | S_IRWXG | S_IRWXO)
+#define DEFFILEMODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)
+
+#define S_BLKSIZE 512
 
 struct stat {
   dev_t st_dev;

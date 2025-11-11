@@ -3,8 +3,19 @@
 
 typedef void (*__sighandler_t)(int);
 typedef unsigned long sigset_t;
+typedef int sig_atomic_t;
 
 #define __NSIG 32
+#define NSIG __NSIG
+
+#define __sigmask(sig) (((sigset_t)1U) << (sig))
+#define sigmask(sig) __sigmask(sig)
+
+#define __sigemptyset(set) ((*(set) = (sigset_t)0), 0)
+#define __sigfillset(set) ((*(set) = ~(sigset_t)0), 0)
+#define __sigaddset(set, sig) ((*set |= __sigmask(sig)), 0)
+#define __sigdelset(set, sig) ((*set &= ~__sigmask(sig)), 0)
+#define __sigismember(set, sig) (((*(set)) & __sigmask(sig)) ? 1 : 0)
 
 #define SIG_SETMASK 0
 #define SIG_BLOCK 1
@@ -48,6 +59,13 @@ typedef unsigned long sigset_t;
 
 #define SIG_DFL ((__sighandler_t)0)
 #define SIG_IGN ((__sighandler_t)1)
+#ifndef SIG_HOLD
+#define SIG_HOLD ((__sighandler_t)2)
+#endif
+#ifndef BADSIG
+#define BADSIG SIG_ERR
+#endif
+
 #define SIG_ERR ((__sighandler_t) - 1)
 
 struct sigaction {
